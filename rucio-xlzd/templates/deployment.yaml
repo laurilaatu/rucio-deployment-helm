@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rucio-server
+spec:
+  replicas: {{ .Values.rucio.server.replicas }}
+  selector:
+    matchLabels:
+      app: rucio-server
+  template:
+    metadata:
+      labels:
+        app: rucio-server
+    spec:
+      volumes:
+      - name: grid-certificates
+        hostPath:
+          path: /etc/grid-security  # Ensure this path exists on the node
+
+      containers:
+      - name: rucio-server
+        image: {{ .Values.rucio.server.image }}
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          - name: grid-certificates
+            mountPath: /etc/grid-security
+            readOnly: true
+        env:
+          - name: RUCIO_CFG_DATABASE_DEFAULT
+            value: "postgresql://{{ .Values.rucio.server.db_user }}:{{ .Values.rucio.server.db_password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.rucio.server.db_name }}"
+          - name: RUCIO_CFG_FTS3_DEFAULT
+            value: "{{ .Values.rucio.server.fts_host }}"
+          - name: X509_USER_CERT
+            value: "{{ .Values.rucio.server.x509_cert }}"
+          - name: X509_USER_KEY
+            value: "{{ .Values.rucio.server.x509_key }}"
+          - name: X509_CERT_DIR
+            value: "{{ .Values.rucio.server.ca_path }}"

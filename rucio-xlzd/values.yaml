@@ -1,0 +1,65 @@
+# Rucio Server Configuration
+rucio:
+  server:
+    enabled: true
+    replicas: 1
+    image: "rucio/rucio-server:latest"
+    loglevel: "DEBUG"
+    port: 80
+    db_host: "postgresql"
+    db_user: "rucio"
+    db_password: "rucio"
+    db_name: "rucio"
+    
+    # FTS Configuration
+    fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
+    
+    # X.509 Authentication
+    x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
+    x509_key: "/etc/grid-security/hostkey.pem"    # Private key
+    ca_path: "/etc/grid-security/certificates"    # Trusted CAs
+
+# Database Configuration (PostgreSQL)
+database:
+  type: postgresql
+  enabled: true
+  postgresqlUsername: "rucio"
+  postgresqlPassword: "rucio"
+  postgresqlDatabase: "rucio"
+
+# Storage Elements (RSE) Configuration
+bootstrap:
+  rse:
+    - name: "CERN_STORAGE"
+      rse_type: DISK
+      deterministic: True
+      volatile: False
+      protocols:
+        - scheme: "srm"
+          hostname: "eospublic.cern.ch"
+          port: 8443
+          prefix: "/eos/rucio/"
+          impl: "rucio.rse.protocols.srm.Default"
+          domains:
+            - WAN
+          extended_attributes:
+            space_token: "CERN_EOS"
+            fts: "https://fts3-public.cern.ch:8446"  # CERN FTS
+
+# X.509 Authentication for User Access
+security:
+  x509:
+    enabled: true
+    user_cert_path: "~/.globus/usercert.pem"
+    user_key_path: "~/.globus/userkey.pem"
+    ca_cert_path: "/etc/grid-security/certificates"
+
+# Rucio Daemons (Optional)
+daemons:
+  enabled: true
+  image: "rucio/rucio-daemons:latest"
+
+# WebUI Configuration (Optional)
+webui:
+  enabled: false  # Set to true if WebUI is needed
+  image: "rucio/rucio-webui:latest"
