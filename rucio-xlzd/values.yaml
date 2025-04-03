@@ -27,7 +27,7 @@ postgresql:
     # -- The database username for authentication
     username: rucio
     # -- The password for the database user
-    password: "rucio"
+    password: rucio
     # -- The name of the database to be created and used by Rucio
     database: rucio
 
