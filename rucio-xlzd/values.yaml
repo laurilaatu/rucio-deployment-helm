@@ -34,21 +34,21 @@ postgresql:
 # Storage Elements (RSE) Configuration
 bootstrap:
   rse:
-    - name: "CERN_STORAGE"
+    - name: "BOULBY_STORAGE"
       rse_type: DISK
       deterministic: True
       volatile: False
       protocols:
-        - scheme: "srm"
-          hostname: "eospublic.cern.ch"
-          port: 8443
-          prefix: "/eos/rucio/"
-          impl: "rucio.rse.protocols.srm.Default"
+        - scheme: "davs"
+          hostname: "xlzd-data.boulby.ac.uk"
+          port: 1094
+          prefix: "/rucio"
+          impl: "rucio.rse.protocols.webdav.Default"
           domains:
             - WAN
           extended_attributes:
-            space_token: "CERN_EOS"
-            fts: "https://fts3-public.cern.ch:8446"  # CERN FTS
+            #space_token: "CERN_EOS"
+            fts: "https://fts00.grid.hep.ph.ic.ac.uk:8446"  # CERN FTS
 
 # X.509 Authentication for User Access
 security:
@@ -64,6 +64,6 @@ daemons:
   image: "rucio/rucio-daemons:latest"
 
 # WebUI Configuration (Optional)
-webui:
-  enabled: false  # Set to true if WebUI is needed
-  image: "rucio/rucio-webui:latest"
+#webui:
+#  enabled: false  # Set to true if WebUI is needed
+#  image: "rucio/rucio-webui:latest"
