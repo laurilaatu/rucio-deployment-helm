@@ -1,0 +1,17 @@
+postgresql:
+  auth:
+    username: {{ .Values.postgres.user | quote }}
+    password: {{ .Values.postgres.password | quote }}
+    database: {{ .Values.postgres.db | quote }}
+
+  primary:
+    service:
+      ports:
+        postgresql: {{ .Values.postgres.port }}
+
+    persistence:
+      enabled: {{ .Values.postgres.persistence.enabled }}
+      size: {{ .Values.postgres.persistence.size | quote }}
+
+  image:
+    tag: "{{ .Values.postgres.image | regexFind '[^:]+$' }}"
