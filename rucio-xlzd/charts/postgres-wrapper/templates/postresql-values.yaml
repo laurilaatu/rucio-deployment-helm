@@ -13,5 +13,5 @@ postgresql:
       enabled: {{ .Values.postgres.persistence.enabled }}
       size: {{ .Values.postgres.persistence.size | quote }}
 
-  image:
-    tag: "{{ .Values.postgres.image | regexFind '[^:]+$' }}"
+  #image:
+  #  tag: "{{ .Values.postgres.image | regexFind '[^:]+$' }}"
