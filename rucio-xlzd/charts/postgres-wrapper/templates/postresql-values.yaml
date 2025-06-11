@@ -7,11 +7,16 @@ postgresql:
   primary:
     service:
       ports:
-        postgresql: {{ .Values.postgres.port }}
+        postgresql: {{ .Values.postgres.port | default 5432 }}
 
     persistence:
-      enabled: {{ .Values.postgres.persistence.enabled }}
-      size: {{ .Values.postgres.persistence.size | quote }}
+      {{- if .Values.postgres.persistence }}
+      enabled: {{ .Values.postgres.persistence.enabled | default false }}
+      size: {{ .Values.postgres.persistence.size | default "5Gi" | quote }}
+      {{- else }}
+      enabled: false
+      size: "5Gi"
+      {{- end }}
 
   image:
     tag: {{ .Values.postgres.image | split ":" | last | quote }}
