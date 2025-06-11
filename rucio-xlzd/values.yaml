@@ -20,7 +20,7 @@ rucio:
     ca_path: "/etc/grid-security/certificates"    # Trusted CAs
 
 # Database Configuration (PostgreSQL)
-postgres:
+postgres-wrapper:
   # --  Configuration of built-in postgresql database. If 'enabled: true', a postgresql instance will be deployed, otherwise, an external database must be provided in database.default value
   enabled: true
   auth:
