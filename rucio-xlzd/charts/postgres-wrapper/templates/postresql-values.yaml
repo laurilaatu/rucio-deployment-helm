@@ -1,7 +1,7 @@
 auth:
-  username: {{ .Values.postgres.user | quote }}
-  password: {{ .Values.postgres.password | quote }}
-  database: {{ .Values.postgres.db | quote }}
+  username: {{ .Values.postgres.auth.user | quote }}
+  password: {{ .Values.postgres.auth.password | quote }}
+  database: {{ .Values.postgres.auth.database | quote }}
 
 primary:
   service:
@@ -9,11 +9,11 @@ primary:
       postgresql: {{ .Values.postgres.port | default 5432 }}
 
   persistence:
-    {{- if .Values.postgres.persistence }}
+    {{- if .Values.postgres.persistence }} # This will be false if .Values.postgres.persistence is not defined
     enabled: {{ .Values.postgres.persistence.enabled | default false }}
     size: {{ .Values.postgres.persistence.size | default "5Gi" | quote }}
     {{- else }}
-    enabled: false
+    enabled: false # <-- This will always be set if .Values.postgres.persistence is missing from your values.yaml
     size: "5Gi"
     {{- end }}
 
