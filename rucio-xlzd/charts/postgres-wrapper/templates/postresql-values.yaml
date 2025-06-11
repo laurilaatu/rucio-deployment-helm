@@ -1,5 +1,5 @@
 auth:
-  username: {{ .Values.postgres.auth.user | quote }}
+  username: {{ .Values.postgres.auth.username | quote }}
   password: {{ .Values.postgres.auth.password | quote }}
   database: {{ .Values.postgres.auth.database | quote }}
 
