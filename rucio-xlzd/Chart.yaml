@@ -24,6 +24,6 @@ version: 0.1.0
 appVersion: "1.16.0"
 
 dependencies:
-  - name: postgres-wrapper
+  - name: postgres
     version: "0.1.0"
-    repository: "file://charts/postgres-wrapper"
+    repository: "file://charts/postgres"
