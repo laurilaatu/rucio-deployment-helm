@@ -19,4 +19,5 @@ postgresql:
       {{- end }}
 
   image:
-    tag: {{ (.Values.postgres.image | default "postgres:14") | split ":" | last | quote }}
+    repository: {{ .Values.postgres.image.repository | default "postgres" | quote }}
+    tag: {{ .Values.postgres.image.tag | default "14" | quote }}
