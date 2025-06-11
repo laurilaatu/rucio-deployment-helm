@@ -1,4 +1,4 @@
-postgresql:
+postgres:
   auth:
     username: {{ .Values.postgres.user | quote }}
     password: {{ .Values.postgres.password | quote }}
