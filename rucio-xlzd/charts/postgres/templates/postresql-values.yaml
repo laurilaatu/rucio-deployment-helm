@@ -1,0 +1,22 @@
+auth:
+  username: {{ .Values.auth.username | quote }}
+  password: {{ .Values.auth.password | quote }}
+  database: {{ .Values.auth.database | quote }}
+
+primary:
+  service:
+    ports:
+      postgresql: {{ .Values.port | default 5432 }}
+
+  persistence:
+    {{- if .Values.persistence }} # This will be false if .Values.persistence is not defined
+    enabled: {{ .Values.persistence.enabled | default false }}
+    size: {{ .Values.persistence.size | default "5Gi" | quote }}
+    {{- else }}
+    enabled: false # <-- This will always be set if .Values.persistence is missing from your values.yaml
+    size: "5Gi"
+    {{- end }}
+
+image:
+  repository: "postgres"
+  tag: "14"

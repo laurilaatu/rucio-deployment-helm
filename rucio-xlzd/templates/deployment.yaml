@@ -28,7 +28,7 @@ spec:
             readOnly: true
         env:
           - name: RUCIO_CFG_DATABASE_DEFAULT
-            value: "postgresql://{{ .Values.postgres-wrapper.auth.username }}:{{ .Values.postgres-wrapper.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres-wrapper.auth.database }}"
+            value: "postgresql://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres.auth.database }}"
           - name: RUCIO_CFG_FTS3_DEFAULT
             value: "{{ .Values.rucio.server.fts_host }}"
           - name: X509_USER_CERT
