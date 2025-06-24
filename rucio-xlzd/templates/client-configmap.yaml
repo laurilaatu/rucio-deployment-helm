@@ -1,0 +1,24 @@
+{{- if .Values.client.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rucio-client-config
+data:
+  rucio.cfg: |
+    [client]
+    rucio_host = {{ .Values.rucio.server.host }}
+    auth_host = {{ .Values.rucio.server.host }}
+    auth_type = x509
+    account = {{ .Values.client.account }}
+    ca_cert = /etc/ca-certs/ca.cert.pem
+    client_cert = {{ .Values.client.x509_cert }}
+    client_key = {{ .Values.client.x509_key }}
+    request_retries = 3
+
+    [policy]
+    permission = generic
+    schema = generic
+    lfn2pfn_algorithm_default = hash
+    support = https://github.com/rucio/rucio/issues/
+    support_rucio = https://github.com/rucio/rucio/issues/
+{{- end }}

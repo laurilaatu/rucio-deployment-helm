@@ -69,40 +69,27 @@ spec:
       - name: grid-certificates
         hostPath:
           path: /etc/grid-security
-      # This allows for additional volumes to be defined in values.yaml, same as the server.
+      - name: rucio-config-volume
+        configMap:
+          name: rucio-client-config
       {{- with .Values.client.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
 
       containers:
-      - name: rucio-client
-        image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
-        imagePullPolicy: {{ .Values.client.image.pullPolicy | default "IfNotPresent" }}        # This command keeps the pod running so you can connect to it.
-        command: ["tail", "-f", "/dev/null"]
-        volumeMounts:
-          - name: grid-certificates
-            mountPath: /etc/grid-security
-            readOnly: true
-        # This allows for additional volume mounts to be defined in values.yaml.
-        {{- with .Values.client.extraVolumeMounts }}
-        {{- toYaml . | nindent 10 }}
-        {{- end }}
-        env:
-          # --- Rucio client configuration ---
-          - name: RUCIO_HOST
-            value: "{{ .Values.rucio.server.host }}"
-          - name: RUCIO_AUTH_TYPE
-            value: "x509"
-          - name: RUCIO_ACCOUNT
-            value: "{{ .Values.client.account }}"
-
-          # --- X.509 certificate configuration ---
-          # These paths should point to your client certificate and key
-          # within the mounted /etc/grid-security volume.
-          - name: X509_USER_CERT
-            value: "{{ .Values.client.x509_cert }}"
-          - name: X509_USER_KEY
-            value: "{{ .Values.client.x509_key }}"
-          - name: X509_CERT_DIR
-            value: "/etc/ca-certs"
+        - name: rucio-client
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
+          imagePullPolicy: {{ .Values.client.image.pullPolicy | default "IfNotPresent" }}
+          command: ["tail", "-f", "/dev/null"]
+          volumeMounts:
+            - name: grid-certificates
+              mountPath: /etc/grid-security
+              readOnly: true
+            # Mount the rucio.cfg file from our ConfigMap to the correct location
+            - name: rucio-config-volume
+              mountPath: /opt/rucio/etc/rucio.cfg
+              subPath: rucio.cfg
+            {{- with .Values.client.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
 {{- end }}
