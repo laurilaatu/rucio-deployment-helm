@@ -6,12 +6,12 @@ metadata:
 data:
   rucio.cfg: |
     [client]
-    rucio_host = {{ .Values.client.config.rucio_host }}
-    auth_host = {{ .Values.client.config.auth_host }}
+    # These values now point directly to the canonical server host value
+    rucio_host = {{ required "rucio.server.host is required in values.yaml!" .Values.rucio.server.host }}
+    auth_host = {{ required "rucio.server.host is required in values.yaml!" .Values.rucio.server.host }}
     auth_type = {{ .Values.client.config.auth_type }}
     account = {{ required "client.config.account is required!" .Values.client.config.account }}
     ca_cert = /etc/ca-certs/ca.cert.pem
-    # These paths point to where the user secret will be mounted inside the pod
     client_cert = /opt/rucio/certs/user/usercert.pem
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3

@@ -11,7 +11,7 @@ rucio:
     db_user: "rucio"
     db_password: "rucio"
     db_name: "rucio"
-    host: "http://rucio-server.default.svc.cluster.local"    
+    host: "http://rucio-service"
     # FTS Configuration
     fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
 
@@ -41,10 +41,6 @@ client:
 
   # -- Configuration for the client's rucio.cfg file
   config:
-    # -- The internal Kubernetes service name of the Rucio server
-    rucio_host: "http://rucio-server" 
-    # -- The internal Kubernetes service name for authentication
-    auth_host: "http://rucio-server"
     # -- The authentication strategy to use
     auth_type: "x509"
     # -- The Rucio account to use for client operations
