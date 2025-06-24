@@ -13,37 +13,44 @@ spec:
         app: rucio-server
     spec:
       volumes:
-      - name: grid-certificates
-        hostPath:
-          path: /etc/grid-security  # Ensure this path exists on the node
-      {{- with .Values.rucio.server.extraVolumes }}
-      {{- toYaml . | nindent 6 }}
-      {{- end }}
+        # NEW: Volume for the server's own cert/key, from the new secret
+        - name: server-host-certs
+          secret:
+            secretName: rucio-server-certs
+            # Set permissions for the mounted private key
+            defaultMode: 0400
+        # This is the volume for the CA certs, which is correct
+        {{- with .Values.rucio.server.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 
       containers:
-      - name: rucio-server
-        image: {{ .Values.rucio.server.image }}
-        ports:
-          - containerPort: 80
-        volumeMounts:
-          - name: grid-certificates
-            mountPath: /etc/grid-security
-            readOnly: true
-          {{- with .Values.rucio.server.extraVolumeMounts }}
-          {{- toYaml . | nindent 10 }}
-          {{- end }}
+        - name: rucio-server
+          image: {{ .Values.rucio.server.image }}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            # Mount the server's own cert/key to a clean path
+            - name: server-host-certs
+              mountPath: /opt/rucio/certs/host
+              readOnly: true
+            # This is the mount for the CA certs, which is correct
+            {{- with .Values.rucio.server.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
 
-        env:
-          - name: RUCIO_CFG_DATABASE_DEFAULT
-            value: "postgresql://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres.auth.database }}"
-          - name: RUCIO_CFG_FTS3_DEFAULT
-            value: "{{ .Values.rucio.server.fts_host }}"
-          - name: X509_USER_CERT
-            value: "{{ .Values.rucio.server.x509_cert }}"
-          - name: X509_USER_KEY
-            value: "{{ .Values.rucio.server.x509_key }}"
-          - name: X509_CERT_DIR
-            value: "/etc/ca-certs"
+          env:
+            - name: RUCIO_CFG_DATABASE_DEFAULT
+              value: "postgresql://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres.auth.database }}"
+            - name: RUCIO_CFG_FTS3_DEFAULT
+              value: "{{ .Values.rucio.server.fts_host }}"
+            # --- ATTENTION: These paths now point to the new secret mount location ---
+            - name: X509_USER_CERT
+              value: "/opt/rucio/certs/host/hostcert.pem"
+            - name: X509_USER_KEY
+              value: "/opt/rucio/certs/host/hostkey.pem"
+            - name: X509_CERT_DIR
+              value: "/etc/ca-certs"
 ---
 # ===================================================================
 #  Rucio Client Deployment

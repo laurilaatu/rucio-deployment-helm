@@ -16,8 +16,8 @@ rucio:
     fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
 
     # X.509 Authentication
-    x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
-    x509_key: "/etc/grid-security/hostkey.pem"    # Private key
+    #x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
+    #x509_key: "/etc/grid-security/hostkey.pem"    # Private key
     ca_path: "/etc/ca-certs"    # Trusted CAs
     extraVolumes:
       - name: ca-certs
