@@ -35,7 +35,7 @@ client:
   replicas: 1
   image:
     # -- Specifies the container image for the Rucio client
-    repository: "rucio/rucio-client"
+    repository: "rucio/rucio-clients"
     tag: "latest"
     pullPolicy: IfNotPresent
 
