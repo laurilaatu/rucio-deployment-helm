@@ -11,7 +11,7 @@ rucio:
     db_user: "rucio"
     db_password: "rucio"
     db_name: "rucio"
-    
+    host: "http://rucio-server.default.svc.cluster.local"    
     # FTS Configuration
     fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
 
@@ -19,6 +19,54 @@ rucio:
     #x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
     #x509_key: "/etc/grid-security/hostkey.pem"    # Private key
     #ca_path: "/etc/grid-security/certificates"    # Trusted CAs
+    extraVolumes:
+      - name: ca-certs
+        secret:
+          secretName: rucio-ca-secret
+    extraVolumeMounts:
+      - name: ca-certs
+        mountPath: /etc/grid-security/certificates
+        readOnly: true
+
+# Rucio Client Configuration
+client:
+  # -- Set to true to deploy a Rucio client pod
+  enabled: true
+  replicas: 1
+  image:
+    # -- Specifies the container image for the Rucio client
+    repository: "rucio/rucio-client"
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  # -- Configuration for the client's rucio.cfg file
+  config:
+    # -- The internal Kubernetes service name of the Rucio server
+    rucio_host: "http://rucio-server" 
+    # -- The internal Kubernetes service name for authentication
+    auth_host: "http://rucio-server"
+    # -- The authentication strategy to use
+    auth_type: "x509"
+    # -- The Rucio account to use for client operations
+    account: "root"
+    
+  # -- Security settings for the client, including the user certificate
+  security:
+    # -- The name of the Kubernetes secret containing the user's X.509 cert and key
+    # -- You must create this secret manually before deploying.
+    # -- Example: kubectl create secret generic rucio-client-x509-secret --from-file=usercert.pem=/path/to/your/usercert.pem --from-file=userkey.pem=/path/to/your/userkey.pem
+    userSecretName: "rucio-client-x509-secret"
+  extraVolumes:
+    - name: ca-certs
+      secret:
+        secretName: rucio-ca-secret
+  extraVolumeMounts:
+    - name: ca-certs
+      mountPath: /etc/grid-security/certificates
+      readOnly: true
+  # -- A command to keep the container running so you can exec into it
+  command: ["tail", "-f", "/dev/null"]
+
 
 # Database Configuration (PostgreSQL)
 postgres:

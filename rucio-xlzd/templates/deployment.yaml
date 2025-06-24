@@ -16,6 +16,9 @@ spec:
       - name: grid-certificates
         hostPath:
           path: /etc/grid-security  # Ensure this path exists on the node
+        {{- with .Values.rucio.server.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 
       containers:
       - name: rucio-server
@@ -26,6 +29,10 @@ spec:
           - name: grid-certificates
             mountPath: /etc/grid-security
             readOnly: true
+        {{- with .Values.rucio.server.extraVolumeMounts }}
+        {{- toYaml . | nindent 12 }}
+        {{- end }}
+
         env:
           - name: RUCIO_CFG_DATABASE_DEFAULT
             value: "postgresql://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres.auth.database }}"
