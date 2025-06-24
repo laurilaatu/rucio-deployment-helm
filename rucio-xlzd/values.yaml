@@ -25,7 +25,7 @@ rucio:
           secretName: rucio-ca-secret
     extraVolumeMounts:
       - name: ca-certs
-        mountPath: /etc/grid-security/certificates
+        mountPath: /etc/ca-certs
         readOnly: true
 
 # Rucio Client Configuration
@@ -62,7 +62,7 @@ client:
         secretName: rucio-ca-secret
   extraVolumeMounts:
     - name: ca-certs
-      mountPath: /etc/grid-security/certificates
+      mountPath: /etc/ca-certs
       readOnly: true
   # -- A command to keep the container running so you can exec into it
   command: ["tail", "-f", "/dev/null"]

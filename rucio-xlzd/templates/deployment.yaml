@@ -43,7 +43,7 @@ spec:
           - name: X509_USER_KEY
             value: "{{ .Values.rucio.server.x509_key }}"
           - name: X509_CERT_DIR
-            value: "{{ .Values.rucio.server.ca_path }}"
+            value: "/etc/ca-certs"
 ---
 # ===================================================================
 #  Rucio Client Deployment
@@ -104,5 +104,5 @@ spec:
           - name: X509_USER_KEY
             value: "{{ .Values.client.x509_key }}"
           - name: X509_CERT_DIR
-            value: "/etc/grid-security/certificates"
+            value: "/etc/ca-certs"
 {{- end }}
