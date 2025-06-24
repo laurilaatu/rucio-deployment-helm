@@ -48,6 +48,7 @@ spec:
 # ===================================================================
 #  Rucio Client Deployment
 # ===================================================================
+{{- if .Values.client.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,8 +76,8 @@ spec:
 
       containers:
       - name: rucio-client
-        image: {{ .Values.client.image }}
-        # This command keeps the pod running so you can connect to it.
+        image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
+        imagePullPolicy: {{ .Values.client.image.pullPolicy | default "IfNotPresent" }}        # This command keeps the pod running so you can connect to it.
         command: ["tail", "-f", "/dev/null"]
         volumeMounts:
           - name: grid-certificates
@@ -104,3 +105,4 @@ spec:
             value: "{{ .Values.client.x509_key }}"
           - name: X509_CERT_DIR
             value: "/etc/grid-security/certificates"
+{{- end }}
