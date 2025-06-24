@@ -1,5 +1,6 @@
 # Rucio Server Configuration
 rucio:
+  # TODO: should have token secrets
   server:
     enabled: true
     replicas: 1
@@ -13,11 +14,11 @@ rucio:
     
     # FTS Configuration
     fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
-    
+
     # X.509 Authentication
-    x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
-    x509_key: "/etc/grid-security/hostkey.pem"    # Private key
-    ca_path: "/etc/grid-security/certificates"    # Trusted CAs
+    #x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
+    #x509_key: "/etc/grid-security/hostkey.pem"    # Private key
+    #ca_path: "/etc/grid-security/certificates"    # Trusted CAs
 
 # Database Configuration (PostgreSQL)
 postgres:
@@ -45,9 +46,10 @@ bootstrap:
       rse_type: DISK
       deterministic: True
       volatile: False
+      # attributes needed: oidc_support = True, oidc_base_path = /
       protocols:
         - scheme: "davs"
-          hostname: "xlzd-data.boulby.ac.uk"
+          hostname: "xlzd-data.boulby.ac.uk" # issuer of the token: https://xlzd-iam.boulby.ac.uk/ -> add to idpsecrets.yaml
           port: 1094
           prefix: "/rucio"
           impl: "rucio.rse.protocols.webdav.Default"
@@ -61,14 +63,73 @@ bootstrap:
 security:
   x509:
     enabled: true
-    user_cert_path: "~/.globus/usercert.pem"
-    user_key_path: "~/.globus/userkey.pem"
-    ca_cert_path: "/etc/grid-security/certificates"
+    # user_cert_path: "~/.globus/usercert.pem"
+    # user_key_path: "~/.globus/userkey.pem"
+    ca_cert_path: "/etc/grid-security/certificates" # TODO: check if the folder is populated by the server, should come from outside the container
 
 # Rucio Daemons (Optional)
-daemons:
+# TODO: should have token secrets
+daemons: 
   enabled: true
   image: "rucio/rucio-daemons:latest"
+
+
+  conveyorTransferSubmitterCount: 1
+  conveyorPollerCount: 1
+  conveyorFinisherCount: 1
+  conveyorReceiverCount: 1
+  # conveyorStagerCount: 1
+  # conveyorThrottlerCount: 1
+  # conveyerPreparerCount: 1
+  judgeEvaluatorCount: 1
+
+  conveyorTransferSubmitter:
+    activities: "'User Subscriptions'"
+    sleepTime: 5
+    archiveTimeout: ""
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "3000m"
+      requests:
+        memory: "200Mi"
+        cpu: "700m"
+
+  conveyorPoller:
+    activities: "'User Subscriptions'"
+    sleepTime: 60
+    olderThan: 600
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "3000m"
+      requests:
+        memory: "200Mi"
+        cpu: "700m"
+
+  conveyorFinisher:
+    activities: "'User Subscriptions'"
+    sleepTime: 5
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "3000m"
+      requests:
+        memory: "200Mi"
+        cpu: "700m"
+
+
+  judgeEvaluator:
+
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "3000m"
+      requests:
+        memory: "1Gi"
+        cpu: "700m"
+
+# TODO: add rucio client
 
 # WebUI Configuration (Optional)
 #webui:

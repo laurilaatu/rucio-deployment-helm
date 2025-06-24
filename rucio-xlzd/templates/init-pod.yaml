@@ -21,9 +21,9 @@ spec:
             - name: RUCIO_CFG_DATABASE_SCHEMA
               value: test
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_IDENTITY
-              value: tutorial
+              value: tutorial # TODO: Instead of this, have OIDC
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_PWD
-              value: secret1R
+              value: secret1R # TODO: Instead of this, have OIDC
             - name: RUCIO_PRINT_CFG
               value: "true"
   backoffLimit: 4 # Optional: how many times to retry the Pod if it fails
