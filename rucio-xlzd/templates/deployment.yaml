@@ -17,7 +17,7 @@ spec:
         hostPath:
           path: /etc/grid-security  # Ensure this path exists on the node
       {{- with .Values.rucio.server.extraVolumes }}
-      {{- toYaml . | nindent 8 }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
 
       containers:
