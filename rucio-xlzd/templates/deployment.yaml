@@ -44,6 +44,8 @@ spec:
             {{- end }}
 
           env:
+            - name: RUCIO_HOST
+              value: "{{ .Values.rucio.server.host }}"
             - name: RUCIO_CFG_DATABASE_DEFAULT
               value: "postgresql://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres.auth.database }}"
             - name: RUCIO_CFG_FTS3_DEFAULT
