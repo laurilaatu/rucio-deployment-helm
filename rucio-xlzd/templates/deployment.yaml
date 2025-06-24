@@ -16,9 +16,9 @@ spec:
       - name: grid-certificates
         hostPath:
           path: /etc/grid-security  # Ensure this path exists on the node
-        {{- with .Values.rucio.server.extraVolumes }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+      {{- with .Values.rucio.server.extraVolumes }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
 
       containers:
       - name: rucio-server
@@ -30,7 +30,7 @@ spec:
             mountPath: /etc/grid-security
             readOnly: true
         {{- with .Values.rucio.server.extraVolumeMounts }}
-        {{- toYaml . | nindent 12 }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
 
         env:
@@ -70,7 +70,7 @@ spec:
           path: /etc/grid-security
       # This allows for additional volumes to be defined in values.yaml, same as the server.
       {{- with .Values.client.extraVolumes }}
-      {{- toYaml . | nindent 8 }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
 
       containers:
@@ -84,7 +84,7 @@ spec:
             readOnly: true
         # This allows for additional volume mounts to be defined in values.yaml.
         {{- with .Values.client.extraVolumeMounts }}
-        {{- toYaml . | nindent 12 }}
+        {{- toYaml . | nindent 10 }}
         {{- end }}
         env:
           # --- Rucio client configuration ---
