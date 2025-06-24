@@ -1,11 +1,18 @@
+# In templates/service.yaml
+{{- if .Values.rucio.server.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   name: rucio-service
+  labels:
+    app: rucio-server
 spec:
+  type: {{ .Values.rucio.server.service.type }}
+  ports:
+    - port: {{ .Values.rucio.server.service.port }}
+      targetPort: {{ .Values.rucio.server.service.targetPort }}
+      protocol: {{ .Values.rucio.server.service.protocol }}
+      name: {{ .Values.rucio.server.service.name }}
   selector:
     app: rucio-server
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
+{{- end }}
