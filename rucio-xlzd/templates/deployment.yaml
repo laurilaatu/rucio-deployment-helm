@@ -29,6 +29,10 @@ spec:
           image: {{ .Values.rucio.server.image }}
           ports:
             - containerPort: 80
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "sleep infinity"
           volumeMounts:
             # Mount the server's own cert/key to a clean path
             - name: server-host-certs
