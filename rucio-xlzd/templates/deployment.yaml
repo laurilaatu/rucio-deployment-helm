@@ -29,9 +29,9 @@ spec:
           - name: grid-certificates
             mountPath: /etc/grid-security
             readOnly: true
-        {{- with .Values.rucio.server.extraVolumeMounts }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+          {{- with .Values.rucio.server.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
 
         env:
           - name: RUCIO_CFG_DATABASE_DEFAULT
