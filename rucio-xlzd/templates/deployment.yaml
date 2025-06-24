@@ -64,17 +64,18 @@ spec:
         app: rucio-client
     spec:
       volumes:
-      # This volume mounts the /etc/grid-security directory from the host node,
-      # assuming your user certificates and CA's are present there.
-      - name: grid-certificates
-        hostPath:
-          path: /etc/grid-security
-      - name: rucio-config-volume
-        configMap:
-          name: rucio-client-config
-      {{- with .Values.client.extraVolumes }}
-      {{- toYaml . | nindent 6 }}
-      {{- end }}
+        # Volume for the rucio.cfg file from our ConfigMap
+        - name: rucio-config-volume
+          configMap:
+            name: rucio-client-config
+        # Volume for the user cert/key from the secret defined in values.yaml
+        - name: user-cert-secret
+          secret:
+            secretName: {{ .Values.client.security.userSecretName }}
+        # This is the extraVolume for the CA certs, which is correct
+        {{- with .Values.client.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 
       containers:
         - name: rucio-client
@@ -82,13 +83,15 @@ spec:
           imagePullPolicy: {{ .Values.client.image.pullPolicy | default "IfNotPresent" }}
           command: ["tail", "-f", "/dev/null"]
           volumeMounts:
-            - name: grid-certificates
-              mountPath: /etc/grid-security
-              readOnly: true
-            # Mount the rucio.cfg file from our ConfigMap to the correct location
+            # Mount the rucio.cfg file
             - name: rucio-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
               subPath: rucio.cfg
+            # Mount the user cert/key secret to the path defined in rucio.cfg
+            - name: user-cert-secret
+              mountPath: /opt/rucio/certs/user
+              readOnly: true
+            # This is the extraVolumeMount for the CA certs, which is correct
             {{- with .Values.client.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
