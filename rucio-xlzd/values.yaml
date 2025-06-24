@@ -27,7 +27,12 @@ rucio:
       - name: ca-certs
         mountPath: /etc/ca-certs
         readOnly: true
-
+    service:
+      type: ClusterIP
+      port: 443
+      targetPort: 443
+      protocol: TCP
+      name: https
 # Rucio Client Configuration
 client:
   # -- Set to true to deploy a Rucio client pod
