@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rucio-server
+  name: rucio-server-deployment
 spec:
   replicas: {{ .Values.rucio.server.replicas }}
   selector:
@@ -13,13 +13,10 @@ spec:
         app: rucio-server
     spec:
       volumes:
-        # NEW: Volume for the server's own cert/key, from the new secret
         - name: server-host-certs
           secret:
             secretName: rucio-server-certs
-            # Set permissions for the mounted private key
             defaultMode: 0400
-        # This is the volume for the CA certs, which is correct
         {{- with .Values.rucio.server.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -28,26 +25,23 @@ spec:
         - name: rucio-server
           image: {{ .Values.rucio.server.image }}
           ports:
+            # We are targeting the HTTPS port
             - containerPort: 443
-
           volumeMounts:
-            # Mount the server's own cert/key to a clean path
             - name: server-host-certs
               mountPath: /opt/rucio/certs/host
               readOnly: true
-            # This is the mount for the CA certs, which is correct
             {{- with .Values.rucio.server.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
 
+          # This comprehensive set of environment variables should allow the
+          # internal startup script to generate the correct HTTPS/X.509 config.
           env:
             - name: RUCIO_HOST
               value: "{{ .Values.rucio.server.host }}"
             - name: RUCIO_CFG_DATABASE_DEFAULT
               value: "postgresql://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres.auth.database }}"
-            - name: RUCIO_CFG_FTS3_DEFAULT
-              value: "{{ .Values.rucio.server.fts_host }}"
-            # --- ATTENTION: These paths now point to the new secret mount location ---
             - name: X509_USER_CERT
               value: "/opt/rucio/certs/host/hostcert.pem"
             - name: X509_USER_KEY
