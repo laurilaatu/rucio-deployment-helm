@@ -12,6 +12,13 @@ rucio:
     db_password: "rucio"
     db_name: "rucio"
     host: "https://rucio-service"
+    useSSL: true
+    
+    # These settings will be passed as environment variables to the startup script
+    httpd_config:
+      grid_site_enabled: "True"
+      encoded_slashes: "True"
+        
     # FTS Configuration
     fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
 

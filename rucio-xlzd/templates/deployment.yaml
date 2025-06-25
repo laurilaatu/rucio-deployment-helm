@@ -38,6 +38,12 @@ spec:
           # This comprehensive set of environment variables should allow the
           # internal startup script to generate the correct HTTPS/X.509 config.
           env:
+            - name: RUCIO_USE_SSL
+              value: {{ .Values.rucio.server.useSSL | quote }}
+            - name: RUCIO_HTTPD_GRID_SITE_ENABLED
+              value: {{ .Values.rucio.server.httpd_config.grid_site_enabled | quote }}
+            - name: RUCIO_HTTPD_ENCODED_SLASHES
+              value: {{ .Values.rucio.server.httpd_config.encoded_slashes | quote }}
             - name: RUCIO_HOST
               value: "{{ .Values.rucio.server.host }}"
             - name: RUCIO_CFG_DATABASE_DEFAULT
