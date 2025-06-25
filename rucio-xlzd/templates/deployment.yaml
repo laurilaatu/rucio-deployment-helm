@@ -13,6 +13,9 @@ spec:
         app: rucio-server
     spec:
       volumes:
+        - name: rucio-config-volume
+          configMap:
+            name: rucio-config
         - name: server-host-certs
           secret:
             secretName: rucio-server-certs
@@ -25,9 +28,11 @@ spec:
         - name: rucio-server
           image: {{ .Values.rucio.server.image }}
           ports:
-            # We are targeting the HTTPS port
-            - containerPort: 443
+            - containerPort: 80
           volumeMounts:
+            - name: rucio-config-volume
+              mountPath: /opt/rucio/etc/rucio.cfg
+              subPath: rucio.cfg
             - name: server-host-certs
               mountPath: /opt/rucio/certs/host
               readOnly: true
@@ -77,7 +82,7 @@ spec:
         # Volume for the rucio.cfg file from our ConfigMap
         - name: rucio-config-volume
           configMap:
-            name: rucio-client-config
+            name: rucio-config
         # Volume for the user cert/key from the secret defined in values.yaml
         - name: user-cert-secret
           secret:
