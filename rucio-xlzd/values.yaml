@@ -7,7 +7,7 @@ rucio:
     image: "rucio/rucio-server:latest"
     loglevel: "DEBUG"
     #port: 80
-    db_host: "postgresql"
+    db_host: "rucio-release-postgresql"
     db_user: "rucio"
     db_password: "rucio"
     db_name: "rucio"
@@ -36,10 +36,10 @@ rucio:
         readOnly: true
     service:
       type: ClusterIP
-      port: 80
-      targetPort: 80
+      port: 443
+      targetPort: 443
       protocol: TCP
-      name: http
+      name: https
 # Rucio Client Configuration
 client:
   # -- Set to true to deploy a Rucio client pod
@@ -54,7 +54,7 @@ client:
   # -- Configuration for the client's rucio.cfg file
   config:
     # -- The authentication strategy to use
-    auth_type: "userpass"
+    auth_type: "x509"
     # -- The Rucio account to use for client operations
     account: "root"
     
@@ -75,7 +75,8 @@ client:
   # -- A command to keep the container running so you can exec into it
   command: ["tail", "-f", "/dev/null"]
 
-
+initJob:
+  enabled: true
 # Database Configuration (PostgreSQL)
 postgres:
   # --  Configuration of built-in postgresql database. If 'enabled: true', a postgresql instance will be deployed, otherwise, an external database must be provided in database.default value

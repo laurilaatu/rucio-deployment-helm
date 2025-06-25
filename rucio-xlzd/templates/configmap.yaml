@@ -7,10 +7,8 @@ data:
     [client]
     rucio_host = {{ .Values.rucio.server.host }}
     auth_host = {{ .Values.rucio.server.host }}
-    auth_type = userpass
     username = rucio
-    password = secret
-    account = root
+    password = secretR1
   
     [database]
     default = postgresql://{{ .Values.rucio.server.db_user }}:{{ .Values.rucio.server.db_password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.rucio.server.db_name }}

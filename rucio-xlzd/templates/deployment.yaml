@@ -28,7 +28,7 @@ spec:
         - name: rucio-server
           image: {{ .Values.rucio.server.image }}
           ports:
-            - containerPort: 80
+            - containerPort: 443
           volumeMounts:
             - name: rucio-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
