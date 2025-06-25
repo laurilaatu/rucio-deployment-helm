@@ -6,12 +6,12 @@ rucio:
     replicas: 1
     image: "rucio/rucio-server:latest"
     loglevel: "DEBUG"
-    port: 80
+    #port: 80
     db_host: "postgresql"
     db_user: "rucio"
     db_password: "rucio"
     db_name: "rucio"
-    host: "http://rucio-service"
+    host: "https://rucio-service"
     # FTS Configuration
     fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
 
