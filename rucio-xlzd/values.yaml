@@ -54,7 +54,7 @@ client:
   # -- Configuration for the client's rucio.cfg file
   config:
     # -- The authentication strategy to use
-    auth_type: "x509"
+    auth_type: "userpass"
     # -- The Rucio account to use for client operations
     account: "root"
     
@@ -184,8 +184,6 @@ daemons:
       requests:
         memory: "1Gi"
         cpu: "700m"
-
-# TODO: add rucio client
 
 # WebUI Configuration (Optional)
 #webui:
