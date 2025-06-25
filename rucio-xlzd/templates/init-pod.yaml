@@ -1,29 +1,34 @@
-apiVersion: batch/v1 # Correct API version for Job
+{{- if .Values.initJob.enabled }}
+apiVersion: batch/v1
 kind: Job
 metadata:
-  name: rucio-init-job # Name the Job, not the Pod directly
+  # The name includes the Helm release name to be unique
+  name: {{ .Release.Name }}-rucio-init-job
   labels:
-    app: rucio
+    app: rucio-init-job
 spec:
-  template: # This defines the Pod template for the Job
+  template:
     metadata:
       labels:
-        app: rucio
+        app: rucio-init-job
     spec:
-      restartPolicy: Never # Crucial for a Job to complete
+      restartPolicy: Never
       containers:
         - name: init
           image: rucio/rucio-init:latest
           imagePullPolicy: Always
           env:
+            # This now builds the connection string from your values.yaml,
+            # ensuring it uses the correct db_host.
             - name: RUCIO_CFG_DATABASE_DEFAULT
-              value: postgresql+psycopg://rucio:rucio@postgres-postgresql/rucio
+              value: "postgresql+psycopg://{{ .Values.rucio.server.db_user }}:{{ .Values.rucio.server.db_password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.rucio.server.db_name }}"
             - name: RUCIO_CFG_DATABASE_SCHEMA
               value: test
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_IDENTITY
-              value: tutorial # TODO: Instead of this, have OIDC
+              value: tutorial
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_PWD
-              value: secret1R # TODO: Instead of this, have OIDC
+              value: secret1R
             - name: RUCIO_PRINT_CFG
               value: "true"
-  backoffLimit: 4 # Optional: how many times to retry the Pod if it fails
+  backoffLimit: 4
+{{- end }}
