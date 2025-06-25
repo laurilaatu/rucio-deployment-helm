@@ -82,7 +82,7 @@ spec:
         # Volume for the rucio.cfg file from our ConfigMap
         - name: rucio-config-volume
           configMap:
-            name: rucio-config
+            name: rucio-client-config
         # Volume for the user cert/key from the secret defined in values.yaml
         - name: user-cert-secret
           secret:

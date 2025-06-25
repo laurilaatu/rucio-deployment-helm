@@ -27,7 +27,7 @@ spec:
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_IDENTITY
               value: tutorial
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_PWD
-              value: secret1R
+              value: rucio
             - name: RUCIO_PRINT_CFG
               value: "true"
   backoffLimit: 4
