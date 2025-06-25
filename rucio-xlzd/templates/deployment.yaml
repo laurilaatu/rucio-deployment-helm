@@ -28,7 +28,12 @@ spec:
         - name: rucio-server
           image: {{ .Values.rucio.server.image }}
           ports:
-            - containerPort: 443
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
           volumeMounts:
             - name: rucio-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
@@ -43,13 +48,13 @@ spec:
           # This comprehensive set of environment variables should allow the
           # internal startup script to generate the correct HTTPS/X.509 config.
           env:
-            - name: RUCIO_USE_SSL
+            - name: RUCIO_ENABLE_SSL
               value: {{ .Values.rucio.server.useSSL | quote }}
             - name: RUCIO_HTTPD_GRID_SITE_ENABLED
               value: {{ .Values.rucio.server.httpd_config.grid_site_enabled | quote }}
             - name: RUCIO_HTTPD_ENCODED_SLASHES
               value: {{ .Values.rucio.server.httpd_config.encoded_slashes | quote }}
-            - name: RUCIO_HOST
+            - name: RUCIO_HOSTNAME
               value: "{{ .Values.rucio.server.host }}"
             - name: RUCIO_CFG_DATABASE_DEFAULT
               value: "postgresql://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgres.auth.database }}"
