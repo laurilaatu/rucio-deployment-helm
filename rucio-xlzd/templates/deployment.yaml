@@ -57,7 +57,7 @@ spec:
             - name: RUCIO_HOSTNAME
               value: "{{ .Values.rucio.server.host }}"
             - name: RUCIO_CFG_DATABASE_DEFAULT
-              value: "postgresql://{{ .Values.postgresql.postgresql.auth.username }}:{{ .Values.postgresql.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.postgresql.auth.database }}"
+              value: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}"
             - name: X509_USER_CERT
               value: "/opt/rucio/certs/host/hostcert.pem"
             - name: X509_USER_KEY
