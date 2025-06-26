@@ -79,22 +79,23 @@ initJob:
   enabled: true
 # Database Configuration (PostgreSQL)
 postgresql:
-  # --  Configuration of built-in postgresql database. If 'enabled: true', a postgresql instance will be deployed, otherwise, an external database must be provided in database.default value
-  enabled: true
-  auth:
-    # -- The database username for authentication
-    username: rucio
-    # -- The password for the database user
-    password: rucio
-    # -- The name of the database to be created and used by Rucio
-    database: rucio
+  postgresql:
+    # --  Configuration of built-in postgresql database. If 'enabled: true', a postgresql instance will be deployed, otherwise, an external database must be provided in database.default value
+    enabled: true
+    auth:
+      # -- The database username for authentication
+      username: rucio
+      # -- The password for the database user
+      password: rucio
+      # -- The name of the database to be created and used by Rucio
+      database: rucio
 
-  #image:
-  #  repository: "postgres"
-  #  tag: "14"
-  #persistence:
-  #  enabled: true
-  #  size: 5Gi
+    #image:
+    #  repository: "postgres"
+    #  tag: "14"
+    #persistence:
+    #  enabled: true
+    #  size: 5Gi
 
 # Storage Elements (RSE) Configuration
 bootstrap:
