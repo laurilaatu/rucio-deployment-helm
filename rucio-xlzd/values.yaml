@@ -47,6 +47,21 @@ rucio:
       - name: server-certs-volume
         mountPath: /etc/grid-security/host-certs
         readOnly: true
+      # Mounts the 'ca.pem' key from the 'ca-certs-volume' to the exact path Apache needs.      - name: ca-certs-volume
+        mountPath: /etc/grid-security/ca.pem
+        subPath: ca.cert.pem # Mounts only the ca.cert.pem file
+        readOnly: true
+      # Mounts the 'hostcert.pem' key from the 'server-certs-volume' to the exact path needed.
+      - name: server-certs-volume
+        mountPath: /etc/grid-security/hostcert.pem
+        subPath: hostcert.pem # Mounts only the hostcert.pem file
+        readOnly: true
+      # Mounts the 'hostkey.pem' key from the 'server-certs-volume' to the exact path needed.
+      - name: server-certs-volume
+        mountPath: /etc/grid-security/hostkey.pem
+        subPath: hostkey.pem # Mounts only the hostkey.pem file
+        readOnly: true
+        
     service:
       type: ClusterIP
       port: 443
