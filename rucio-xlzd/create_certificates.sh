@@ -44,7 +44,7 @@ else
     openssl req -x509 -new -nodes \
         -key "$CERT_DIR/ca.key.pem" \
         -sha256 -days "$DAYS" \
-        -out "$CERT_DIR/ca.cert.pem" \
+        -out "$CERT_DIR/ca.pem" \
         -subj "$CA_SUBJ"
     echo "CA key and certificate created."
 fi
@@ -63,7 +63,7 @@ openssl req -new \
 SAN_CONFIG="subjectAltName = DNS:$SERVER_SUBJ,DNS:rucio-service.default.svc.cluster.local"
 
 openssl x509 -req -in "$CERT_DIR/host.csr.pem" \
-    -CA "$CERT_DIR/ca.cert.pem" \
+    -CA "$CERT_DIR/ca.pem" \
     -CAkey "$CERT_DIR/ca.key.pem" \
     -CAcreateserial \
     -out "$CERT_DIR/hostcert.pem" \
@@ -82,7 +82,7 @@ openssl req -new \
     -subj "$CLIENT_SUBJ"
 
 openssl x509 -req -in "$CERT_DIR/user.csr.pem" \
-    -CA "$CERT_DIR/ca.cert.pem" \
+    -CA "$CERT_DIR/ca.pem" \
     -CAkey "$CERT_DIR/ca.key.pem" \
     -CAcreateserial \
     -out "$CERT_DIR/usercert.pem" \
@@ -92,9 +92,9 @@ echo
 
 # 5. Create CA Hash Link
 echo "--- Creating CA hash link ---"
-HASH=$(openssl x509 -noout -subject_hash -in "$CERT_DIR/ca.cert.pem")
+HASH=$(openssl x509 -noout -subject_hash -in "$CERT_DIR/ca.pem")
 # Use cp instead of ln for better Docker/build context compatibility
-cp "$CERT_DIR/ca.cert.pem" "$CERT_DIR/$HASH.0"
+cp "$CERT_DIR/ca.pem" "$CERT_DIR/$HASH.0"
 echo "Hash link created: $HASH.0"
 echo
 
