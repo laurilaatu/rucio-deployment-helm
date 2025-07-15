@@ -11,7 +11,7 @@ data:
     auth_host = {{ required "rucio.server.host is required in values.yaml!" .Values.rucio.server.host }}
     auth_type = {{ .Values.client.config.auth_type }}
     account = {{ required "client.config.account is required!" .Values.client.config.account }}
-    ca_cert = /etc/ca-certs/ca.cert.pem
+    ca_cert = /etc/grid-security/certificates/ca.cert.pem
     client_cert = /opt/rucio/certs/user/usercert.pem
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3

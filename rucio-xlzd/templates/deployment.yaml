@@ -39,7 +39,7 @@ spec:
               mountPath: /opt/rucio/etc/rucio.cfg
               subPath: rucio.cfg
             - name: server-host-certs
-              mountPath: /opt/rucio/certs/host
+              mountPath: /etc/grid-security
               readOnly: true
             {{- with .Values.rucio.server.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
@@ -59,11 +59,11 @@ spec:
             - name: RUCIO_CFG_DATABASE_DEFAULT
               value: "postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}"
             - name: X509_USER_CERT
-              value: "/opt/rucio/certs/host/hostcert.pem"
+              value: "/etc/grid-security/hostcert.pem"
             - name: X509_USER_KEY
-              value: "/opt/rucio/certs/host/hostkey.pem"
+              value: "/etc/grid-security/hostkey.pem"
             - name: X509_CERT_DIR
-              value: "/etc/ca-certs"
+              value: "/etc/grid-security/certificates"
 ---
 # ===================================================================
 #  Rucio Client Deployment

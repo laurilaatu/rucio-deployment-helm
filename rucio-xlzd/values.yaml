@@ -25,14 +25,15 @@ rucio:
     # X.509 Authentication
     #x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
     #x509_key: "/etc/grid-security/hostkey.pem"    # Private key
-    ca_path: "/etc/ca-certs"    # Trusted CAs
+    ca_path: "/etc/grid-security/certificates"    # Trusted CAs
     extraVolumes:
       - name: ca-certs
+        mountPath: /etc/grid-security/certificates
         secret:
           secretName: rucio-ca-secret
     extraVolumeMounts:
       - name: ca-certs
-        mountPath: /etc/ca-certs
+        mountPath: /etc/grid-security/certificates
         readOnly: true
     service:
       type: ClusterIP
@@ -70,7 +71,7 @@ client:
         secretName: rucio-ca-secret
   extraVolumeMounts:
     - name: ca-certs
-      mountPath: /etc/ca-certs
+      mountPath: /etc/grid-security/certificates
       readOnly: true
   # -- A command to keep the container running so you can exec into it
   command: ["tail", "-f", "/dev/null"]
@@ -122,7 +123,7 @@ security:
     enabled: true
     # user_cert_path: "~/.globus/usercert.pem"
     # user_key_path: "~/.globus/userkey.pem"
-    ca_cert_path: "/etc/grid-security" # TODO: check if the folder is populated by the server, should come from outside the container
+    ca_cert_path: "/etc/grid-security/certificates" # TODO: check if the folder is populated by the server, should come from outside the container
 
 # Rucio Daemons (Optional)
 # TODO: should have token secrets
