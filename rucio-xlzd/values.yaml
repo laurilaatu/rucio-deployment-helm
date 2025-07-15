@@ -82,14 +82,14 @@ client:
     - name: ca-certs-volume
       secret:
         secretName: rucio-grid-secret
-    - name: user-cert-secret
+    - name: client-secret
       secret:
         secretName: rucio-client-x509-secret        
   extraVolumeMounts:
     - name: ca-certs-volume
       mountPath: /etc/grid-security/certificates
       readOnly: true
-    - name: user-cert-secret
+    - name: client-secret
       mountPath: /etc/grid-security/certificates/ca.cert.pem
       subPath: ca.pem
       readOnly: true      
