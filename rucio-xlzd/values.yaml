@@ -26,17 +26,26 @@ rucio:
     #x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
     #x509_key: "/etc/grid-security/hostkey.pem"    # Private key
     ca_path: "/etc/grid-security/certificates"    # Trusted CAs
+    # This section defines the volumes to be made available to the server pod.
     extraVolumes:
-      - name: ca-certs
-        mountPath: /etc/grid-security/certificates
-        hostPath:
-          path: /etc/grid-security/certificates  # Path on the host where CA certs are stored
-          type: Directory
-    #    secret:
-    #      secretName: rucio-ca-secret
+      # A volume named 'ca-certs-volume' sourced from the manually created 'rucio-grid-secret'.
+      - name: ca-certs-volume
+        secret:
+          secretName: rucio-grid-secret
+      # A volume named 'server-certs-volume' sourced from the 'rucio-server-certs' secret created by Helm.
+      - name: server-certs-volume
+        secret:
+          secretName: rucio-server-certs
+
+    # This section mounts the defined volumes into the server container.
     extraVolumeMounts:
-      - name: ca-certs
+      # Mounts the 'ca-certs-volume' to make trusted CAs available.
+      - name: ca-certs-volume
         mountPath: /etc/grid-security/certificates
+        readOnly: true
+      # Mounts the 'server-certs-volume' to provide the server's host certificate and key.
+      - name: server-certs-volume
+        mountPath: /etc/grid-security/host-certs
         readOnly: true
     service:
       type: ClusterIP
@@ -69,11 +78,11 @@ client:
     # -- Example: kubectl create secret generic rucio-client-x509-secret --from-file=usercert.pem=/path/to/your/usercert.pem --from-file=userkey.pem=/path/to/your/userkey.pem
     userSecretName: "rucio-client-x509-secret"
   extraVolumes:
-    - name: ca-certs
+    - name: ca-certs-volume
       secret:
-        secretName: rucio-ca-secret
+        secretName: rucio-grid-secret
   extraVolumeMounts:
-    - name: ca-certs
+    - name: ca-certs-volume
       mountPath: /etc/grid-security/certificates
       readOnly: true
   # -- A command to keep the container running so you can exec into it
