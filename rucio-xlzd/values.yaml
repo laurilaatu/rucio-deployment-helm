@@ -26,9 +26,12 @@ rucio:
     #x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
     #x509_key: "/etc/grid-security/hostkey.pem"    # Private key
     ca_path: "/etc/grid-security/certificates"    # Trusted CAs
-    #extraVolumes:
-    #  - name: ca-certs
-    #    mountPath: /etc/grid-security/certificates
+    extraVolumes:
+      - name: ca-certs
+        mountPath: /etc/grid-security/certificates
+        hostPath:
+          path: /etc/grid-security/certificates  # Path on the host where CA certs are stored
+          type: Directory
     #    secret:
     #      secretName: rucio-ca-secret
     extraVolumeMounts:
