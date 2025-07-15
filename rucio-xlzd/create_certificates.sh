@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+# Also create grid certificates for Rucio:
+# kubectl create secret generic rucio-grid-secret --from-file=/etc/grid-security/certificates
+
 # A script to generate self-signed certificates for the Rucio Helm chart.
 # This script should be run from the root of the Helm chart directory.
 
