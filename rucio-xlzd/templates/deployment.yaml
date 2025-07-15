@@ -16,13 +16,6 @@ spec:
         - name: rucio-config-volume
           configMap:
             name: rucio-config
-        - name: server-host-certs
-          secret:
-            secretName: rucio-server-certs
-            defaultMode: 0400
-        {{- with .Values.rucio.server.extraVolumes }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
 
       containers:
         - name: rucio-server
@@ -38,12 +31,6 @@ spec:
             - name: rucio-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
               subPath: rucio.cfg
-            - name: server-host-certs
-              mountPath: /etc/grid-security
-              readOnly: true
-            {{- with .Values.rucio.server.extraVolumeMounts }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
 
           # This comprehensive set of environment variables should allow the
           # internal startup script to generate the correct HTTPS/X.509 config.
