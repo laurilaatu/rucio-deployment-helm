@@ -122,7 +122,7 @@ security:
     enabled: true
     # user_cert_path: "~/.globus/usercert.pem"
     # user_key_path: "~/.globus/userkey.pem"
-    ca_cert_path: "/etc/grid-security/certificates" # TODO: check if the folder is populated by the server, should come from outside the container
+    ca_cert_path: "/etc/grid-security" # TODO: check if the folder is populated by the server, should come from outside the container
 
 # Rucio Daemons (Optional)
 # TODO: should have token secrets
