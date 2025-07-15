@@ -49,7 +49,7 @@ spec:
           # internal startup script to generate the correct HTTPS/X.509 config.
           env:
             - name: RUCIO_ENABLE_SSL
-              value: {{ .Values.rucio.server.useSSL | quote }}
+              value: True
             - name: RUCIO_HTTPD_GRID_SITE_ENABLED
               value: {{ .Values.rucio.server.httpd_config.grid_site_enabled | quote }}
             - name: RUCIO_HTTPD_ENCODED_SLASHES
