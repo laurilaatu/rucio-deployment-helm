@@ -81,7 +81,7 @@ client:
   extraVolumeMounts:
     # Mounts the user's certificate into its own subdirectory.
     - name: client-certs-volume
-      mountPath: /etc/grid-security/user
+      mountPath: /opt/rucio/certs/user
       readOnly: true
     # Mounts ONLY the ca.pem file to the exact path the client needs.
     - name: ca-certs-volume
