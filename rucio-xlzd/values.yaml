@@ -16,7 +16,7 @@ rucio:
       encoded_slashes: "True"
     fts_host: "https://fts3-public.cern.ch:8446"
 
-    # This variable tells the application where to find the trusted CAs.
+    # This variable is still useful for other tools.
     ca_path: "/etc/grid-security/certificates"
 
     # Define the volumes needed: one for server certs, one for CA certs.
@@ -28,13 +28,22 @@ rucio:
         secret:
           secretName: rucio-ca-secret
 
-    # Mount the volumes to their required locations.
+    # This section now uses subPath to mount individual files exactly where Apache needs them.
     extraVolumeMounts:
+      # Mounts hostcert.pem from the server secret.
       - name: server-certs-volume
-        mountPath: /etc/grid-security
+        mountPath: /etc/grid-security/hostcert.pem
+        subPath: hostcert.pem
         readOnly: true
+      # Mounts hostkey.pem from the server secret.
+      - name: server-certs-volume
+        mountPath: /etc/grid-security/hostkey.pem
+        subPath: hostkey.pem
+        readOnly: true
+      # Mounts ca.pem from the CA secret.
       - name: ca-certs-volume
-        mountPath: /etc/grid-security/certificates
+        mountPath: /etc/grid-security/ca.pem
+        subPath: ca.pem
         readOnly: true
 
     service:
@@ -43,7 +52,6 @@ rucio:
       targetPort: 443
       protocol: TCP
       name: https
-
 # Rucio Client Configuration
 client:
   enabled: true
