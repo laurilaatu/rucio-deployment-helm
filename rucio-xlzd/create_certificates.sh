@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Also create grid certificates for Rucio:
 # kubectl create secret generic rucio-grid-secret --from-file=/etc/grid-security/certificates
 
@@ -21,8 +20,11 @@ DAYS=3650
 # Certificate Authority details.
 CA_SUBJ="/C=GB/ST=London/L=London/O=MyOrg/OU=DevOps/CN=My Test CA"
 
-# Server certificate details. The CN must match the rucio.server.host value from your values.yaml.
-SERVER_SUBJ="/C=GB/ST=London/L=London/O=MyOrg/OU=Server/CN=rucio-service"
+# --- Corrected Server Hostname Configuration ---
+# Define the hostname in a variable for clarity and reuse.
+SERVER_HOSTNAME="rucio-service"
+# The CN must match the Kubernetes Service name.
+SERVER_SUBJ="/C=GB/ST=London/L=London/O=MyOrg/OU=Server/CN=${SERVER_HOSTNAME}"
 
 # Client/user certificate details.
 CLIENT_SUBJ="/C=GB/ST=London/L=London/O=MyOrg/OU=Users/CN=rucio-test-user"
@@ -37,38 +39,44 @@ echo
 
 # 2. Generate Certificate Authority (CA)
 echo "--- Generating Certificate Authority (CA) ---"
-if [ -f "$CERT_DIR/ca.key.pem" ]; then
-    echo "CA key already exists, skipping."
-else
-    openssl genpkey -algorithm RSA -out "$CERT_DIR/ca.key.pem"
-    openssl req -x509 -new -nodes \
-        -key "$CERT_DIR/ca.key.pem" \
-        -sha256 -days "$DAYS" \
-        -out "$CERT_DIR/ca.pem" \
-        -subj "$CA_SUBJ"
-    echo "CA key and certificate created."
-fi
+openssl genpkey -algorithm RSA -out "$CERT_DIR/ca.key.pem"
+openssl req -x509 -new -nodes \
+    -key "$CERT_DIR/ca.key.pem" \
+    -sha256 -days "$DAYS" \
+    -out "$CERT_DIR/ca.pem" \
+    -subj "$CA_SUBJ"
+# Create ca.cert.pem as a copy for compatibility
+cp "$CERT_DIR/ca.pem" "$CERT_DIR/ca.cert.pem"
+echo "CA key and certificate created."
 echo
 
 # 3. Generate Server Certificate
-echo "--- Generating Server Certificate ---"
+echo "--- Generating Server Certificate for ${SERVER_HOSTNAME} ---"
 openssl genpkey -algorithm RSA -out "$CERT_DIR/hostkey.pem"
 openssl req -new \
     -key "$CERT_DIR/hostkey.pem" \
     -out "$CERT_DIR/host.csr.pem" \
     -subj "$SERVER_SUBJ"
 
-# Best Practice: Use a Subject Alternative Name (SAN) for DNS and IP addresses.
-# This makes the certificate valid for multiple hostnames.
-SAN_CONFIG="subjectAltName = DNS:$SERVER_SUBJ,DNS:rucio-service.default.svc.cluster.local"
+# Create a temporary config file for the Subject Alternative Name (SAN) extension.
+# This ensures the certificate is valid for the hostname 'rucio-service'.
+cat > "$CERT_DIR/v3.ext" <<-EOF
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = ${SERVER_HOSTNAME}
+EOF
 
+# Sign the server certificate, applying the SAN extension from the temp file.
 openssl x509 -req -in "$CERT_DIR/host.csr.pem" \
     -CA "$CERT_DIR/ca.pem" \
     -CAkey "$CERT_DIR/ca.key.pem" \
     -CAcreateserial \
     -out "$CERT_DIR/hostcert.pem" \
     -days "$DAYS" -sha256 \
-    -extfile <(printf "%s\n" "$SAN_CONFIG")
+    -extfile "$CERT_DIR/v3.ext"
 
 echo "Server certificate and key created."
 echo
@@ -93,7 +101,6 @@ echo
 # 5. Create CA Hash Link
 echo "--- Creating CA hash link ---"
 HASH=$(openssl x509 -noout -subject_hash -in "$CERT_DIR/ca.pem")
-# Use cp instead of ln for better Docker/build context compatibility
 cp "$CERT_DIR/ca.pem" "$CERT_DIR/$HASH.0"
 echo "Hash link created: $HASH.0"
 echo
@@ -102,6 +109,7 @@ echo
 echo "--- Cleaning up intermediate files ---"
 rm "$CERT_DIR"/*.csr.pem
 rm "$CERT_DIR"/*.srl
+rm "$CERT_DIR/v3.ext"
 echo
 
-echo "✅ All certificates generated successfully in the '$CERT_DIR' directory."
+echo "✅ All certificates regenerated successfully in the '$CERT_DIR' directory."
