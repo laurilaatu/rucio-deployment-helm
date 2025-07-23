@@ -73,11 +73,10 @@ client:
     - name: client-certs-volume
       secret:
         secretName: "rucio-client-x509-secret"
+        defaultMode: 0400
     - name: ca-certs-volume
       secret:
         secretName: rucio-ca-secret
-        defaultMode: 0400
-
 
   # This section mounts the volumes without conflict.
   extraVolumeMounts:
