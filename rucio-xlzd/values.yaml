@@ -1,100 +1,98 @@
 # Rucio Server Configuration
 rucio:
-  # TODO: should have token secrets
   server:
     enabled: true
     replicas: 1
     image: "rucio/rucio-server:latest"
     loglevel: "DEBUG"
-    #port: 80
     db_host: "rucio-release-postgresql"
     db_user: "rucio"
     db_password: "rucio"
     db_name: "rucio"
     host: "https://rucio-service"
     useSSL: true
-    
-    # These settings will be passed as environment variables to the startup script
     httpd_config:
       grid_site_enabled: "True"
       encoded_slashes: "True"
-        
-    # FTS Configuration
-    fts_host: "https://fts3-public.cern.ch:8446"  # CERN FTS endpoint
+    fts_host: "https://fts3-public.cern.ch:8446"
 
-    # X.509 Authentication
-    #x509_cert: "/etc/grid-security/hostcert.pem"  # Host certificate
-    #x509_key: "/etc/grid-security/hostkey.pem"    # Private key
-    ca_path: "/etc/grid-security/certificates"    # Trusted CAs
-    # This section defines the volumes to be made available to the server pod.
+    # This variable tells the application where to find the trusted CAs.
+    ca_path: "/etc/grid-security/certificates"
+
+    # Define the volumes needed: one for server certs, one for CA certs.
     extraVolumes:
-      # A volume named 'ca-certs-volume' sourced from the manually created 'rucio-grid-secret'.
-      - name: ca-certs-volume
-        secret:
-          secretName: rucio-grid-secret
-      # A volume named 'server-certs-volume' sourced from the 'rucio-server-certs' secret created by Helm.
       - name: server-certs-volume
         secret:
           secretName: rucio-server-certs
-
-    # This section mounts the defined volumes into the server container.
-    extraVolumeMounts:
-      # Mounts the 'ca-certs-volume' to make trusted CAs available.
       - name: ca-certs-volume
-        mountPath: /etc/grid-security/certificates
-        readOnly: true
-      # Mounts the 'server-certs-volume' to provide the server's host certificate and key.
+        secret:
+          secretName: rucio-ca-secret
+
+    # Mount the volumes to their required locations.
+    extraVolumeMounts:
       - name: server-certs-volume
         mountPath: /etc/grid-security
         readOnly: true
-        
+      - name: ca-certs-volume
+        mountPath: /etc/grid-security/certificates
+        readOnly: true
+
     service:
       type: ClusterIP
       port: 443
       targetPort: 443
       protocol: TCP
       name: https
+
 # Rucio Client Configuration
 client:
-  # -- Set to true to deploy a Rucio client pod
   enabled: true
   replicas: 1
   image:
-    # -- Specifies the container image for the Rucio client
     repository: "rucio/rucio-clients"
     tag: "latest"
     pullPolicy: IfNotPresent
-
-  # -- Configuration for the client's rucio.cfg file
   config:
-    # -- The authentication strategy to use
     auth_type: "x509"
-    # -- The Rucio account to use for client operations
     account: "root"
-    
-  # -- Security settings for the client, including the user certificate
+
   security:
-    # -- The name of the Kubernetes secret containing the user's X.509 cert and key
-    # -- You must create this secret manually before deploying.
-    # -- Example: kubectl create secret generic rucio-client-x509-secret --from-file=usercert.pem=/path/to/your/usercert.pem --from-file=userkey.pem=/path/to/your/userkey.pem
+    # The name of the secret containing the user's X.509 cert and key.
     userSecretName: "rucio-client-x509-secret"
+
+  # This section defines the two separate volumes we need.
   extraVolumes:
+    # A volume for the user's personal certificate and key.
+    - name: client-certs-volume
+      secret:
+        secretName: "rucio-client-x509-secret"
+    # A volume for the CA certificates.
     - name: ca-certs-volume
       secret:
-        secretName: rucio-grid-secret
-    - name: client-secret
-      secret:
-        secretName: rucio-client-x509-secret        
+        # This should be the name of your CA secret (e.g., rucio-ca-secret or rucio-grid-secret)
+        secretName: rucio-ca-secret
+
+  # This section mounts the volumes to their required locations.
   extraVolumeMounts:
-    - name: ca-certs-volume
-      mountPath: /etc/grid-security/certificates
+    # Mounts the entire client-certs-volume so usercert.pem and userkey.pem
+    # are available in /etc/grid-security/.
+    - name: client-certs-volume
+      mountPath: /etc/grid-security
       readOnly: true
-    - name: client-secret
+    # Mounts ONLY the ca.pem file from the ca-certs-volume and renames it
+    # to ca.cert.pem at the exact path the client needs.
+    - name: ca-certs-volume
       mountPath: /etc/grid-security/certificates/ca.cert.pem
       subPath: ca.pem
-      readOnly: true      
-  # -- A command to keep the container running so you can exec into it
+      readOnly: true
+    # Mounts the required CA hash link from the ca-certs-volume.
+    - name: ca-certs-volume
+      mountPath: /etc/grid-security/certificates/209843b3.0
+      subPath: 209843b3.0
+      readOnly: true
+
   command: ["tail", "-f", "/dev/null"]
+
 
 initJob:
   enabled: true
