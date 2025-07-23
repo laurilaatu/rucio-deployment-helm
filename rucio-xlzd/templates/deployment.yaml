@@ -96,10 +96,6 @@ spec:
             - name: rucio-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
               subPath: rucio.cfg
-            # Mount the user cert/key secret to the path defined in rucio.cfg
-            - name: user-cert-secret
-              mountPath: /opt/rucio/certs/user
-              readOnly: true
             # This is the extraVolumeMount for the CA certs
             {{- with .Values.client.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
