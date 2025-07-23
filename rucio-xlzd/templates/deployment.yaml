@@ -81,12 +81,7 @@ spec:
         - name: rucio-config-volume
           configMap:
             name: rucio-client-config
-        # Volume for the user cert/key from the secret defined in values.yaml
-        - name: user-cert-secret
-          secret:
-            secretName: {{ .Values.client.security.userSecretName }}
-            defaultMode: 0400
-        # This is the extraVolume for the CA certs, which is correct
+        # This is the extraVolume for the CA certs
         {{- with .Values.client.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -105,7 +100,7 @@ spec:
             - name: user-cert-secret
               mountPath: /opt/rucio/certs/user
               readOnly: true
-            # This is the extraVolumeMount for the CA certs, which is correct
+            # This is the extraVolumeMount for the CA certs
             {{- with .Values.client.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

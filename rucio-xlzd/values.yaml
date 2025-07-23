@@ -70,35 +70,31 @@ client:
 
   # This section defines the two separate volumes we need.
   extraVolumes:
-    # A volume for the user's personal certificate and key.
     - name: client-certs-volume
       secret:
         secretName: "rucio-client-x509-secret"
-    # A volume for the CA certificates.
     - name: ca-certs-volume
       secret:
-        # This should be the name of your CA secret (e.g., rucio-ca-secret or rucio-grid-secret)
         secretName: rucio-ca-secret
 
-  # This section mounts the volumes to their required locations.
+  # This section mounts the volumes without conflict.
   extraVolumeMounts:
-    # Mounts the entire client-certs-volume so usercert.pem and userkey.pem
-    # are available in /etc/grid-security/.
+    # Mounts the user's certificate into its own subdirectory.
     - name: client-certs-volume
-      mountPath: /etc/grid-security
+      mountPath: /etc/grid-security/user
       readOnly: true
-    # Mounts ONLY the ca.pem file from the ca-certs-volume and renames it
-    # to ca.cert.pem at the exact path the client needs.
+    # Mounts ONLY the ca.pem file to the exact path the client needs.
     - name: ca-certs-volume
       mountPath: /etc/grid-security/certificates/ca.cert.pem
       subPath: ca.pem
       readOnly: true
-    # Mounts the required CA hash link from the ca-certs-volume.
+    # Mounts the required CA hash link.
     - name: ca-certs-volume
       mountPath: /etc/grid-security/certificates/209843b3.0
       subPath: 209843b3.0
       readOnly: true
 
+  # The command to keep the container running.
   command: ["tail", "-f", "/dev/null"]
 
 
