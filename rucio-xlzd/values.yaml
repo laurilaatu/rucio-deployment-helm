@@ -117,7 +117,7 @@ postgresql:
   #  repository: "postgres"
   #  tag: "14"
   persistence:
-    enabled: true
+    enabled: false
   #  size: 5Gi
 
 # Storage Elements (RSE) Configuration
