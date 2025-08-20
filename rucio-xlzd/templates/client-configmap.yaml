@@ -16,6 +16,10 @@ data:
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3
 
+    [database]
+    default = postgresql+psycopg://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}
+
+
     [policy]
     permission = generic
     schema = generic
