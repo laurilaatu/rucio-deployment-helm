@@ -18,16 +18,12 @@ spec:
           image: rucio/rucio-init:latest
           imagePullPolicy: Always
           env:
-            # This now builds the connection string from your values.yaml,
-            # ensuring it uses the correct db_host.
             - name: RUCIO_CFG_DATABASE_DEFAULT
-              value: "postgresql+psycopg://{{ .Values.rucio.server.db_user }}:{{ .Values.rucio.server.db_password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.rucio.server.db_name }}"
-            - name: RUCIO_CFG_DATABASE_SCHEMA
-              value: test
+              value: "postgresql+psycopg://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}:5432/{{ .Values.postgresql.auth.database }}"
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_IDENTITY
-              value: tutorial
+              value: "rucio"
             - name: RUCIO_CFG_BOOTSTRAP_USERPASS_PWD
-              value: rucio
+              value: "rucio"
             - name: RUCIO_PRINT_CFG
               value: "true"
   backoffLimit: 4
