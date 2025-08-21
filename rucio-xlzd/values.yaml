@@ -14,6 +14,7 @@ rucio:
       grid_site_enabled: "True"
       encoded_slashes: "True"
     fts_host: "https://fts3-public.cern.ch:8446"
+    root_identity_dn: "/C=GB/ST=London/L=London/O=MyOrg/OU=Users/CN=rucio-test-user"
 
     # This variable is still useful for other tools.
     ca_path: "/etc/grid-security/certificates"
