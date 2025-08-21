@@ -30,6 +30,21 @@ spec:
             - name: https
               containerPort: 443
               protocol: TCP
+
+          # --- ADDED THIS SECTION ---
+          # These probes read the probe configuration from your values.yaml.
+          # They allow Kubernetes to check if the server is listening without
+          # needing full Rucio authentication, solving the startup deadlock.
+          {{- with .Values.rucio.server.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.rucio.server.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          # --- END OF ADDED SECTION ---
+
           volumeMounts:
             - name: rucio-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
@@ -37,9 +52,7 @@ spec:
             {{- with .Values.rucio.server.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-
-          # This comprehensive set of environment variables should allow the
-          # internal startup script to generate the correct HTTPS/X.509 config.
+            
           env:
             - name: RUCIO_ENABLE_SSL
               value: "True"
