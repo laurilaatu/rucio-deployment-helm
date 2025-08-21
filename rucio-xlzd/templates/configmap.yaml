@@ -9,7 +9,7 @@ data:
     loglevel = {{ .Values.rucio.server.loglevel | default "DEBUG" }}
 
     [database]
-    default = postgresql://{{ .Values.rucio.server.db_user }}:{{ .Values.rucio.server.db_password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.rucio.server.db_name }}
+    default = postgresql+psycopg://{{ .Values.rucio.server.db_user }}:{{ .Values.rucio.server.db_password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.rucio.server.db_name }}
 
 
     [client]
