@@ -1,4 +1,3 @@
-# Rucio Server Configuration
 rucio:
   server:
     enabled: true
@@ -52,6 +51,24 @@ rucio:
       targetPort: 443
       protocol: TCP
       name: https
+
+    # --- ADDED THIS SECTION ---
+    # These probes check if the web server is listening without needing full Rucio authentication.
+    # This allows the pod to become 'Ready' so the bootstrap identity job can run.
+    readinessProbe:
+      tcpSocket:
+        port: 443
+      initialDelaySeconds: 15
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 3
+    livenessProbe:
+      tcpSocket:
+        port: 443
+      initialDelaySeconds: 30
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 3
 # Rucio Client Configuration
 client:
   enabled: true
