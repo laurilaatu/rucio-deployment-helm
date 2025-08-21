@@ -118,18 +118,33 @@ client:
 bootstrap:
   enabled: true
   
-  # --- ADD THIS NEW SECTION ---
-  # These are the temporary user/pass credentials the bootstrap job will use to authenticate.
-  # They must match the credentials created by the rucio-init job.
+  # Temporary user/pass credentials the bootstrap job will use to authenticate.
   auth:
     username: "rucio"
     password: "rucio"
   
-  # The X.509 identity to be registered to the root account
+  # The X.509 identity to be registered to the root account.
   identity:
     account: "root"
     type: "X509"
     id: "/C=GB/ST=London/L=London/O=MyOrg/OU=Users/CN=rucio-test-user"
+
+  # The RSE configuration is now correctly nested in the single bootstrap block.
+  rse:
+    - name: "BOULBY_STORAGE"
+      rse_type: DISK
+      deterministic: True
+      volatile: False
+      protocols:
+        - scheme: "davs"
+          hostname: "xlzd-data.boulby.ac.uk"
+          port: 1094
+          prefix: "/rucio"
+          impl: "rucio.rse.protocols.webdav.Default"
+          domains:
+            - WAN
+          extended_attributes:
+            fts: "https://fts00.grid.hep.ph.ic.ac.uk:8446"
 
 
   
@@ -152,25 +167,6 @@ postgresql:
     enabled: false
   #  size: 5Gi
 
-# Storage Elements (RSE) Configuration
-bootstrap:
-  rse:
-    - name: "BOULBY_STORAGE"
-      rse_type: DISK
-      deterministic: True
-      volatile: False
-      # attributes needed: oidc_support = True, oidc_base_path = /
-      protocols:
-        - scheme: "davs"
-          hostname: "xlzd-data.boulby.ac.uk" # issuer of the token: https://xlzd-iam.boulby.ac.uk/ -> add to idpsecrets.yaml
-          port: 1094
-          prefix: "/rucio"
-          impl: "rucio.rse.protocols.webdav.Default"
-          domains:
-            - WAN
-          extended_attributes:
-            #space_token: "CERN_EOS"
-            fts: "https://fts00.grid.hep.ph.ic.ac.uk:8446"  # CERN FTS
 
 # X.509 Authentication for User Access
 security:
