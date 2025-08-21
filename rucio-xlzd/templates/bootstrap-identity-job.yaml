@@ -19,7 +19,6 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name | quote }}
     spec:
       restartPolicy: OnFailure
-
       initContainers:
         - name: wait-for-rucio-server
           image: busybox:1.36
@@ -29,13 +28,18 @@ spec:
             - |
               set -ex
               SERVER_HOST="{{ .Values.rucio.server.service.name | default "rucio-service" }}"
-              # The port check requires an explicit port number.
               SERVER_PORT="443"
               
               echo "Waiting for Rucio server at ${SERVER_HOST}:${SERVER_PORT}..."
+              counter=0
+              # Increased the loop limit from 12 to 36 (3 minute timeout)
               until nc -z -w 5 "${SERVER_HOST}" "${SERVER_PORT}"; do
-                echo "Rucio server is not ready yet. Retrying in 5 seconds..."
                 sleep 5
+                counter=$((counter+1))
+                if [ $counter -ge 36 ]; then
+                  echo "Error: Timeout waiting for Rucio server."
+                  exit 1
+                fi
               done
               echo "Rucio server is ready."
 
@@ -54,19 +58,15 @@ spec:
               mountPath: /etc/grid-security/certificates/ca.cert.pem
               subPath: ca.pem
               readOnly: true
-
           command: ["/bin/sh", "-c"]
           args:
             - |
               set -ex
               echo "--- Starting bootstrap identity job ---"
-              
               CERT_PATH="/opt/rucio/certs/user/usercert.pem"
-              
               echo "Extracting DN from certificate at ${CERT_PATH}"
               CLIENT_DN=$(openssl x509 -in $CERT_PATH -noout -subject | sed 's/subject= //')
               echo "Found DN: ${CLIENT_DN}"
-              
               echo "Checking for existing identity mapping for account root..."
               if rucio-admin account list-identities --account root | grep -qF "${CLIENT_DN}"; then
                 echo "Identity already exists for root account. Nothing to do."
@@ -75,7 +75,6 @@ spec:
                 rucio-admin account add-identity --account root --type X509 --id "${CLIENT_DN}"
                 echo "Successfully added identity."
               fi
-              
               echo "--- Bootstrap identity job completed successfully ---"
       
       volumes:
