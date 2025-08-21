@@ -115,11 +115,31 @@ client:
   # The command to keep the container running.
   command: ["tail", "-f", "/dev/null"]
 
+bootstrap:
+  # -- Enable the all-in-one bootstrap job --
+  enabled: true
 
-initJob:
-  enabled: true
-bootstrapIdentity:
-  enabled: true
+  # -- Declarative identity mapping --
+  # This identity will be mapped to the specified account.
+  identity:
+    account: "root"
+    type: "X509"
+    # --- IMPORTANT: PASTE YOUR CLIENT CERTIFICATE DN HERE ---
+    id: "/C=GB/ST=London/L=London/O=MyOrg/OU=Users/CN=rucio-test-user"
+
+  # -- Declarative RSE configuration --
+  # This section can now be used by the bootstrap job.
+  rse:
+    - name: "BOULBY_STORAGE"
+      rse_type: DISK
+      deterministic: True
+      volatile: False
+      protocols:
+        - scheme: "davs"
+          hostname: "xlzd-data.boulby.ac.uk"
+          port: 1094
+          prefix: "/rucio"
+          impl: "rucio.rse.protocols.webdav.Default"
 # Database Configuration (PostgreSQL)
 postgresql:
   # --  Configuration of built-in postgresql database. If 'enabled: true', a postgresql instance will be deployed, otherwise, an external database must be provided in database.default value

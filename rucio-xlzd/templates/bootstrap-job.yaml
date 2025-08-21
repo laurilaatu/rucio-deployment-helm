@@ -1,0 +1,110 @@
+{{- if .Values.bootstrap.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-rucio-bootstrap-job
+  labels:
+    app: rucio-bootstrap-job
+  annotations:
+    # This job runs after install/upgrade and is cleaned up on success.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      
+      # This Init Container waits for BOTH the database and the server to be ready.
+      initContainers:
+        - name: wait-for-dependencies
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+            - |
+              set -ex
+              DB_HOST="{{ .Values.rucio.server.db_host }}"
+              SERVER_HOST="{{ .Values.rucio.server.service.name | default "rucio-service" }}"
+              
+              echo "Waiting for database at ${DB_HOST}:5432..."
+              until nc -z -w 5 "${DB_HOST}" 5432; do
+                echo "Database not ready. Retrying..."
+                sleep 5
+              done
+              echo "✅ Database is ready."
+
+              echo "Waiting for Rucio server at ${SERVER_HOST}:443..."
+              until nc -z -w 5 "${SERVER_HOST}" 443; do
+                echo "Rucio server not ready. Retrying..."
+                sleep 5
+              done
+              echo "✅ Rucio server is ready."
+
+      # Main container to run all bootstrap commands
+      containers:
+        - name: bootstrap
+          # The rucio-init image contains rucio-admin and db tools
+          image: rucio/rucio-init:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: rucio-config-volume
+              mountPath: /opt/rucio/etc/rucio.cfg
+              subPath: rucio.cfg
+            - name: client-certs-volume
+              mountPath: /opt/rucio/certs/user
+              readOnly: true
+            - name: ca-certs-volume
+              mountPath: /etc/grid-security/certificates/ca.cert.pem
+              subPath: ca.pem
+              readOnly: true
+          
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -ex
+              echo "--- Starting Rucio Bootstrap Job ---"
+
+              echo "1. Syncing database schema..."
+              rucio-admin db sync
+              echo "✅ Database schema is up to date."
+
+              echo "2. Configuring identity for account '{{ .Values.bootstrap.identity.account }}'..."
+              # This adds the identity if it doesn't exist, and does nothing if it does.
+              rucio-admin account add-identity --account "{{ .Values.bootstrap.identity.account }}" \
+                --type "{{ .Values.bootstrap.identity.type }}" \
+                --id "{{ .Values.bootstrap.identity.id }}" || echo "Identity already exists."
+              echo "✅ Identity configuration complete."
+
+              {{- with .Values.bootstrap.rse }}
+              echo "3. Configuring RSEs..."
+              {{- range . }}
+              echo "--> Configuring RSE {{ .name }}..."
+              if rucio-admin rse add "{{ .name }}"; then
+                echo "    RSE {{ .name }} created."
+                {{- with .protocols }}
+                {{- range . }}
+                rucio-admin rse add-protocol --hostname "{{ .hostname }}" --scheme "{{ .scheme }}" --prefix "{{ .prefix }}" --port {{ .port }} --impl "{{ .impl }}" --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}' "{{ $.name }}"
+                {{- end }}
+                {{- end }}
+              else
+                echo "    RSE {{ .name }} already exists, skipping creation."
+              fi
+              {{- end }}
+              echo "✅ RSE configuration complete."
+              {{- end }}
+
+              echo "--- Rucio Bootstrap Job Finished Successfully ---"
+
+      volumes:
+        - name: rucio-config-volume
+          configMap:
+            # IMPORTANT: The job needs the client config to talk to the server
+            name: rucio-client-config
+        - name: client-certs-volume
+          secret:
+            secretName: {{ .Values.client.security.userSecretName }}
+        - name: ca-certs-volume
+          secret:
+            secretName: rucio-ca-secret
+{{- end }}
