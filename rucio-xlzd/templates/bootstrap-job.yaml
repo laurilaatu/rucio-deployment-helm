@@ -25,7 +25,7 @@ spec:
             - |
               set -ex
               DB_HOST="{{ .Values.rucio.server.db_host }}"
-              SERVER_HOST="{{ .Values.rucio.server.service.name | default "rucio-service" }}"
+              SERVER_HOST="rucio-service"
               
               echo "Waiting for database at ${DB_HOST}:5432..."
               until nc -z -w 5 "${DB_HOST}" 5432; do
