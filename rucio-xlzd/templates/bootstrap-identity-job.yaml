@@ -27,12 +27,11 @@ spec:
           args:
             - |
               set -ex
-              SERVER_HOST="{{ .Values.rucio.server.service.name | default "rucio-service" }}"
+              SERVER_HOST="rucio-service"
               SERVER_PORT="443"
               
               echo "Waiting for Rucio server at ${SERVER_HOST}:${SERVER_PORT}..."
               counter=0
-              # Increased the loop limit from 12 to 36 (3 minute timeout)
               until nc -z -w 5 "${SERVER_HOST}" "${SERVER_PORT}"; do
                 sleep 5
                 counter=$((counter+1))
