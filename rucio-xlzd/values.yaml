@@ -115,36 +115,9 @@ client:
   # The command to keep the container running.
   command: ["tail", "-f", "/dev/null"]
 
-bootstrap:
-  enabled: true
-  
-  # Temporary user/pass credentials the bootstrap job will use to authenticate.
-  auth:
-    username: "rucio"
-    password: "rucio"
-  
-  # The X.509 identity to be registered to the root account.
-  identity:
-    account: "root"
-    type: "X509"
-    id: "/C=GB/ST=London/L=London/O=MyOrg/OU=Users/CN=rucio-test-user"
 
-  # The RSE configuration is now correctly nested in the single bootstrap block.
-  rse:
-    - name: "BOULBY_STORAGE"
-      rse_type: DISK
-      deterministic: True
-      volatile: False
-      protocols:
-        - scheme: "davs"
-          hostname: "xlzd-data.boulby.ac.uk"
-          port: 1094
-          prefix: "/rucio"
-          impl: "rucio.rse.protocols.webdav.Default"
-          domains:
-            - WAN
-          extended_attributes:
-            fts: "https://fts00.grid.hep.ph.ic.ac.uk:8446"
+initJob:
+  enabled: true
 
 
   
