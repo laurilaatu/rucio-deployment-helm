@@ -3,10 +3,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ .Release.Name }}-rucio-bootstrap-job
-  labels:
-    app: rucio-bootstrap-job
   annotations:
-    # This job runs after install/upgrade and is cleaned up on success.
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "0"
     "helm.sh/hook-delete-policy": hook-succeeded
@@ -15,92 +12,69 @@ spec:
     spec:
       restartPolicy: OnFailure
       
-      # This Init Container waits for BOTH the database and the server to be ready.
       initContainers:
-        - name: wait-for-dependencies
+        # Step 1: Initialize the DB and create the root account
+        - name: db-init
+          # This specific image creates the schema and the root/bootstrap users
+          image: rucio/rucio-init:latest
+          imagePullPolicy: Always
+          env:
+            # Provide the necessary env vars for the init container to work
+            - name: RUCIO_CFG_DATABASE_DEFAULT
+              value: "postgresql+psycopg://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}"
+            - name: RUCIO_CFG_BOOTSTRAP_USERPASS_IDENTITY
+              value: "{{ .Values.bootstrap.auth.username }}"
+            - name: RUCIO_CFG_BOOTSTRAP_USERPASS_PWD
+              value: "{{ .Values.bootstrap.auth.password }}"
+
+        # Step 2: Wait for the Rucio server to be online
+        - name: wait-for-rucio-server
           image: busybox:1.36
           imagePullPolicy: IfNotPresent
           command: ['sh', '-c']
           args:
             - |
               set -ex
-              DB_HOST="{{ .Values.rucio.server.db_host }}"
-              SERVER_HOST="rucio-service"
-              
-              echo "Waiting for database at ${DB_HOST}:5432..."
-              until nc -z -w 5 "${DB_HOST}" 5432; do
-                echo "Database not ready. Retrying..."
-                sleep 5
-              done
-              echo "✅ Database is ready."
-
-              echo "Waiting for Rucio server at ${SERVER_HOST}:443..."
-              until nc -z -w 5 "${SERVER_HOST}" 443; do
-                echo "Rucio server not ready. Retrying..."
-                sleep 5
+              until nc -z -w 5 "rucio-service" 443; do
+                echo "Waiting for rucio-server..." && sleep 5;
               done
               echo "✅ Rucio server is ready."
 
-      # Main container to run all bootstrap commands
+      # Step 3: Run advanced configuration (add identity, RSEs, etc.)
       containers:
-        - name: bootstrap
-          # The rucio-init image contains rucio-admin and db tools
-          image: rucio/rucio-init:latest
-          imagePullPolicy: Always
+        - name: configure-rucio
+          # This image has the rucio-admin tools for advanced configuration
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
           volumeMounts:
-            - name: rucio-config-volume
+            - name: rucio-bootstrap-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
               subPath: rucio.cfg
             - name: client-certs-volume
               mountPath: /opt/rucio/certs/user
-              readOnly: true
             - name: ca-certs-volume
               mountPath: /etc/grid-security/certificates/ca.cert.pem
               subPath: ca.pem
-              readOnly: true
           
           command: ["/bin/sh", "-c"]
           args:
             - |
               set -ex
-              echo "--- Starting Rucio Bootstrap Job ---"
+              echo "--- Starting Rucio Configuration Job ---"
 
-              echo "1. Syncing database schema..."
-              rucio-admin db sync
-              echo "✅ Database schema is up to date."
-
-              echo "2. Configuring identity for account '{{ .Values.bootstrap.identity.account }}'..."
-              # This adds the identity if it doesn't exist, and does nothing if it does.
-              rucio-admin account add-identity --account "{{ .Values.bootstrap.identity.account }}" \
-                --type "{{ .Values.bootstrap.identity.type }}" \
+              echo "1. Configuring identity for account 'root'..."
+              rucio-admin account add-identity --account root \
+                --type X509 \
                 --id "{{ .Values.bootstrap.identity.id }}" || echo "Identity already exists."
               echo "✅ Identity configuration complete."
 
-              {{- with .Values.bootstrap.rse }}
-              echo "3. Configuring RSEs..."
-              {{- range . }}
-              echo "--> Configuring RSE {{ .name }}..."
-              if rucio-admin rse add "{{ .name }}"; then
-                echo "    RSE {{ .name }} created."
-                {{- with .protocols }}
-                {{- range . }}
-                rucio-admin rse add-protocol --hostname "{{ .hostname }}" --scheme "{{ .scheme }}" --prefix "{{ .prefix }}" --port {{ .port }} --impl "{{ .impl }}" --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}' "{{ $.name }}"
-                {{- end }}
-                {{- end }}
-              else
-                echo "    RSE {{ .name }} already exists, skipping creation."
-              fi
-              {{- end }}
-              echo "✅ RSE configuration complete."
-              {{- end }}
-
-              echo "--- Rucio Bootstrap Job Finished Successfully ---"
+              # Add RSE configuration here if needed...
+              
+              echo "--- Rucio Configuration Job Finished ---"
 
       volumes:
-        - name: rucio-config-volume
+        - name: rucio-bootstrap-config-volume
           configMap:
-            # IMPORTANT: The job needs the client config to talk to the server
-            name: rucio-client-config
+            name: rucio-bootstrap-config # This should be the userpass config
         - name: client-certs-volume
           secret:
             secretName: {{ .Values.client.security.userSecretName }}
