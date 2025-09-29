@@ -6,24 +6,16 @@ metadata:
 data:
   rucio.cfg: |
     [client]
-    # These values now point directly to the canonical server host value
-    rucio_host = {{ required "rucio.server.host is required in values.yaml!" .Values.rucio.server.host }}
-    auth_host = {{ required "rucio.server.host is required in values.yaml!" .Values.rucio.server.host }}
+    rucio_host = {{ required "rucio.server.host is required!" .Values.rucio.server.host }}
+    auth_host = {{ required "rucio.server.host is required!" .Values.rucio.server.host }}
     auth_type = {{ .Values.client.config.auth_type }}
-    account = {{ required "client.config.account is required!" .Values.client.config.account }}
-    ca_cert = /etc/grid-security/certificates/ca.cert.pem
+    account = {{ .Values.client.config.account }}
+    # This path is now updated to the simpler, consistent location.
+    ca_cert = /etc/grid-security/ca.pem
     client_cert = /opt/rucio/certs/user/usercert.pem
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3
 
     [database]
     default = postgresql+psycopg://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}
-
-
-    [policy]
-    permission = generic
-    schema = generic
-    lfn2pfn_algorithm_default = hash
-    support = https://github.com/rucio/rucio/issues/
-    support_rucio = https://github.com/rucio/rucio/issues/
 {{- end }}

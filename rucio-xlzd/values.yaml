@@ -96,21 +96,16 @@ client:
       secret:
         secretName: rucio-ca-secret
 
-  # This section mounts the volumes without conflict.
+  # This simplified section mounts only what is needed.
   extraVolumeMounts:
-    # Mounts the user's certificate into its own subdirectory.
+    # Mounts the user's certificate and key.
     - name: client-certs-volume
       mountPath: /opt/rucio/certs/user
       readOnly: true
-    # Mounts ONLY the ca.pem file to the exact path the client needs.
+    # Mounts the single CA certificate file to a standard, simple path.
     - name: ca-certs-volume
-      mountPath: /etc/grid-security/certificates/ca.cert.pem
+      mountPath: /etc/grid-security/ca.pem
       subPath: ca.pem
-      readOnly: true
-    # Mounts the required CA hash link.
-    - name: ca-certs-volume
-      mountPath: /etc/grid-security/certificates/209843b3.0
-      subPath: 209843b3.0
       readOnly: true
 
   # The command to keep the container running.
