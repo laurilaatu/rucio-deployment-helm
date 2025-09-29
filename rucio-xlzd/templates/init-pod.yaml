@@ -34,7 +34,7 @@ spec:
 
       containers:
         - name: db-init
-          image: rucio/rucio-init:latest
+          image: rucio/rucio-init:release-38.3.0
           imagePullPolicy: Always
           env:
             - name: RUCIO_CFG_DATABASE_DEFAULT

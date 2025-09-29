@@ -76,7 +76,7 @@ client:
   replicas: 1
   image:
     repository: "rucio/rucio-clients"
-    tag: "latest"
+    tag: "release-38.3.0"
     pullPolicy: IfNotPresent
   config:
     auth_type: "x509"
