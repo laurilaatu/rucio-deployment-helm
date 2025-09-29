@@ -119,7 +119,7 @@ client:
 
 initJob:
   enabled: true
-
+  image: "rucio/rucio-init:release-38.3.0"
 
   
 # Database Configuration (PostgreSQL)
