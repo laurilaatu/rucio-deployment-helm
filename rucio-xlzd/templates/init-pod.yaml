@@ -17,7 +17,7 @@ spec:
       initContainers:
         # This initContainer uses pg_isready for a reliable database check.
         - name: wait-for-db
-          image: rucio/rucio-init:latest
+          image: rucio/rucio-init:release-38.3.0
           imagePullPolicy: Always
           env:
             # The password for pg_isready is now templated directly from values.yaml.
@@ -36,7 +36,7 @@ spec:
 
       containers:
         - name: db-init
-          image: rucio/rucio-init:latest
+          image: rucio/rucio-init:release-38.3.0
           imagePullPolicy: Always
           env:
             # The password is now templated directly into the connection string.

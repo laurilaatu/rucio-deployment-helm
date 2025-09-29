@@ -2,7 +2,7 @@ rucio:
   server:
     enabled: true
     replicas: 1
-    image: "rucio/rucio-server:latest"
+    image: "rucio/rucio-server:release-38.3.0"
     loglevel: "DEBUG"
     db_host: "rucio-release-postgresql"
     db_user: "rucio"
@@ -154,7 +154,7 @@ security:
 # TODO: should have token secrets
 daemons: 
   enabled: true
-  image: "rucio/rucio-daemons:latest"
+  image: "rucio/rucio-daemons:release-38.3.0"
 
 
   conveyorTransferSubmitterCount: 1
@@ -215,4 +215,4 @@ daemons:
 # WebUI Configuration (Optional)
 #webui:
 #  enabled: false  # Set to true if WebUI is needed
-#  image: "rucio/rucio-webui:latest"
+#  image: "rucio/rucio-webui:release-38.3.0"
