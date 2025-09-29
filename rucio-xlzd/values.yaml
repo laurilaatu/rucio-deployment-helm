@@ -134,9 +134,9 @@ postgresql:
     # -- The name of the database to be created and used by Rucio
     database: rucio
 
-  #image:
-  #  repository: "postgres"
-  #  tag: "14"
+  image:
+    repository: "postgres"
+    tag: "14"
   persistence:
     enabled: false
   #  size: 5Gi
