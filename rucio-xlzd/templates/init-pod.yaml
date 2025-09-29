@@ -15,12 +15,10 @@ spec:
       restartPolicy: OnFailure
       
       initContainers:
-        # This initContainer uses pg_isready for a reliable database check.
         - name: wait-for-db
-          image: rucio/rucio-init:release-38.3.0
-          imagePullPolicy: Always
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
           env:
-            # The password for pg_isready is now templated directly from values.yaml.
             - name: PGPASSWORD
               value: "{{ .Values.postgresql.auth.password }}"
           command: ['sh', '-c']
@@ -36,16 +34,15 @@ spec:
 
       containers:
         - name: db-init
-          image: rucio/rucio-init:release-38.3.0
+          image: rucio/rucio-init:latest
           imagePullPolicy: Always
           env:
-            # The password is now templated directly into the connection string.
             - name: RUCIO_CFG_DATABASE_DEFAULT
               value: "postgresql+psycopg://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}"
             - name: RUCIO_CFG_BOOTSTRAP_ACCOUNT
               value: "root"
             - name: RUCIO_CFG_BOOTSTRAP_X509_IDENTITY
-              value: "{{ required "rucio.server.root_identity_dn is required in values.yaml!" .Values.rucio.server.root_identity_dn }}"
+              value: "{{ required "rucio.root_identity_dn is required in values.yaml!" .Values.rucio.root_identity_dn }}"
             - name: RUCIO_CFG_BOOTSTRAP_X509_EMAIL
               value: "rucio-root@example.com"
             - name: RUCIO_PRINT_CFG
