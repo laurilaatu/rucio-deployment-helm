@@ -53,6 +53,14 @@ rucio:
       protocol: TCP
       name: https
 
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "1000m"
+      requests:
+        memory: "2Gi"
+        cpu: "1000m"
+
     # --- ADDED THIS SECTION ---
     # These probes check if the web server is listening without needing full Rucio authentication.
     # This allows the pod to become 'Ready' so the bootstrap identity job can run.
