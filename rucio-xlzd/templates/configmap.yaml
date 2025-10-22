@@ -15,7 +15,7 @@ data:
     [client]
     rucio_host = {{ .Values.rucio.server.host }}
     auth_host = {{ .Values.rucio.server.host }}
-    auth_type = x509
+    auth_type = x509, userpass
     account = {{ .Values.client.config.account }}
     client_cert = /etc/grid-security/hostcert.pem
     client_key = /etc/grid-security/hostkey.pem

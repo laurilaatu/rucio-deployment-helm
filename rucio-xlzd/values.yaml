@@ -87,8 +87,11 @@ client:
     tag: "release-38.3.0"
     pullPolicy: IfNotPresent
   config:
-    auth_type: "x509"
+    #auth_type: "x509"
+    auth_type: "userpass"
     account: "root"
+    username: "testuser"
+    password: "testpass"
 
   security:
     # The name of the secret containing the user's X.509 cert and key.

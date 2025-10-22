@@ -47,4 +47,21 @@ spec:
               value: "rucio-root@example.com"
             - name: RUCIO_PRINT_CFG
               value: "true"
+          # This command sequence first initializes the database, then adds the new identity.
+          command: ['sh', '-c']
+          args:
+            - |
+              set -ex
+              # 1. Run the default entrypoint to create schema and root X.509 identity
+              echo "Running default DB schema initialization..."
+              /usr/local/bin/docker-entrypoint.sh
+
+              # 2. Add the USERPASS identity to the same account
+              echo "Adding USERPASS identity to account '{{ .Values.client.config.account }}'..."
+              rucio-admin identity add --account {{ .Values.client.config.account }} \
+                --type USERPASS \
+                --username {{ .Values.client.config.username }} \
+                --password {{ .Values.client.config.password }} \
+                --email {{ .Values.client.config.username }}@example.com
+              echo "✅ USERPASS identity created successfully."
 {{- end }}

@@ -10,6 +10,8 @@ data:
     auth_host = {{ required "rucio.server.host is required!" .Values.rucio.server.host }}
     auth_type = {{ .Values.client.config.auth_type }}
     account = {{ .Values.client.config.account }}
+    username = {{ .Values.client.config.username }}
+    password = {{ .Values.client.config.password }}
     # This path is now updated to the simpler, consistent location.
     ca_cert = /etc/grid-security/ca.pem
     client_cert = /opt/rucio/certs/user/usercert.pem
