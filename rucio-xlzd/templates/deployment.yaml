@@ -57,9 +57,9 @@ spec:
             - name: RUCIO_ENABLE_SSL
               value: "True"
             - name: RUCIO_HTTPD_GRID_SITE_ENABLED
-              value: {{ .Values.rucio.server.httpd_config.grid_site_enabled }}
+              value: {{ .Values.rucio.server.httpd_config.grid_site_enabled | quote }}
             - name: RUCIO_HTTPD_ENCODED_SLASHES
-              value: {{ .Values.rucio.server.httpd_config.encoded_slashes }}
+              value: {{ .Values.rucio.server.httpd_config.encoded_slashes | quote  }}
             - name: RUCIO_HOSTNAME
               value: "{{ .Values.rucio.server.host }}"
             - name: RUCIO_CFG_DATABASE_DEFAULT

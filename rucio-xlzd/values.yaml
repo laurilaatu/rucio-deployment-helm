@@ -11,8 +11,8 @@ rucio:
     host: "https://rucio-service"
     useSSL: true
     httpd_config:
-      grid_site_enabled: "True"
-      encoded_slashes: "True"
+      grid_site_enabled: True
+      encoded_slashes: True
     workers:
       MaxRequestWorkers: 150
       ServerLimit: 5
