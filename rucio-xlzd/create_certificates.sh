@@ -29,6 +29,13 @@ SERVER_SUBJ="/C=GB/ST=London/L=London/O=MyOrg/OU=Server/CN=${SERVER_HOSTNAME}"
 # Client/user certificate details.
 CLIENT_SUBJ="/C=GB/ST=London/L=London/O=MyOrg/OU=Users/CN=rucio-test-user"
 
+# rucio values would then use:
+# openssl x509 -in ./certificates/usercert.pem -noout -subject -nameopt RFC2253
+# subject=CN=rucio-test-user,OU=Users,O=MyOrg,L=London,ST=London,C=GB
+# resulting in root_identity_dn: "CN=rucio-test-user,OU=Users,O=MyOrg,L=London,ST=London,C=GB"
+
+
+
 
 # --- Script Logic ---
 
