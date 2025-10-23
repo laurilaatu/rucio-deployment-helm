@@ -19,7 +19,7 @@ data:
     account = {{ .Values.client.config.account }}
     client_cert = /etc/grid-security/hostcert.pem
     client_key = /etc/grid-security/hostkey.pem
-    ca_cert = /etc/grid-security/ca.pem
+    ca_cert = /etc/grid-security/certificates/ca.pem
 
     [messaging-hermes]
     email_from = rucio@example.com
