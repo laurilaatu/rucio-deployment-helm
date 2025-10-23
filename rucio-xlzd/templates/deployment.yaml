@@ -71,19 +71,19 @@ spec:
             - name: X509_CERT_DIR
               value: "/etc/grid-security/certificates"
             - name: RUCIO_HTTPD_MAX_REQUEST_WORKERS
-              value: {{ .Values.rucio.server.httpd_config.workers.MaxRequestWorkers | quote }}
+              value: {{ .Values.rucio.server.workers.MaxRequestWorkers | quote }}
             - name: RUCIO_HTTPD_SERVER_LIMIT
-              value: {{ .Values.rucio.server.httpd_config.workers.ServerLimit | quote }}
+              value: {{ .Values.rucio.server.workers.ServerLimit | quote }}
             - name: RUCIO_HTTPD_START_SERVERS
-              value: {{ .Values.rucio.server.httpd_config.workers.StartServers | quote }}
+              value: {{ .Values.rucio.server.workers.StartServers | quote }}
             - name: RUCIO_HTTPD_MIN_SPARE_THREADS
-              value: {{ .Values.rucio.server.httpd_config.workers.MinSpareThreads | quote }}
+              value: {{ .Values.rucio.server.workers.MinSpareThreads | quote }}
             - name: RUCIO_HTTPD_MAX_SPARE_THREADS
-              value: {{ .Values.rucio.server.httpd_config.workers.MaxSpareThreads | quote }}
+              value: {{ .Values.rucio.server.workers.MaxSpareThreads | quote }}
             - name: RUCIO_HTTPD_THREADS_PER_CHILD
-              value: {{ .Values.rucio.server.httpd_config.workers.ThreadsPerChild | quote }}
+              value: {{ .Values.rucio.server.workers.ThreadsPerChild | quote }}
             - name: RUCIO_HTTPD_MAX_CONNECTIONS_PER_CHILD
-              value: {{ .Values.rucio.server.httpd_config.workers.MaxConnectionsPerChild | quote }}              
+              value: {{ .Values.rucio.server.workers.MaxConnectionsPerChild | quote }}              
 ---
 # ===================================================================
 #  Rucio Client Deployment
