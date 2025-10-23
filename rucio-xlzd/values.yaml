@@ -42,6 +42,10 @@ rucio:
         readOnly: true
       # Mounts ca.pem from the CA secret.
       - name: ca-certs-volume
+        mountPath: /etc/grid-security/ca.pem
+        readOnly: true
+        subPath: ca.pem      
+      - name: ca-certs-volume
         mountPath: /etc/grid-security/certificates
         readOnly: true
         #subPath: ca.pem
