@@ -13,6 +13,14 @@ rucio:
     httpd_config:
       grid_site_enabled: "True"
       encoded_slashes: "True"
+    workers:
+      MaxRequestWorkers: 150
+      ServerLimit: 5
+      StartServers: 3
+      MinSpareThreads: 25
+      MaxSpareThreads: 75
+      ThreadsPerChild: 25
+      MaxConnectionsPerChild: 1000    
     fts_host: "https://fts3-public.cern.ch:8446"
     root_identity_dn: "/C=GB/ST=London/L=London/O=MyOrg/OU=Users/CN=rucio-test-user"
 
@@ -61,10 +69,10 @@ rucio:
     resources:
       limits:
         memory: "4Gi"
-        cpu: "1000m"
+        cpu: "2000m"
       requests:
         memory: "2Gi"
-        cpu: "1000m"
+        cpu: "2000m"
 
     # --- ADDED THIS SECTION ---
     # These probes check if the web server is listening without needing full Rucio authentication.

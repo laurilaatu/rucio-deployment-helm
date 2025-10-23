@@ -57,9 +57,9 @@ spec:
             - name: RUCIO_ENABLE_SSL
               value: "True"
             - name: RUCIO_HTTPD_GRID_SITE_ENABLED
-              value: {{ .Values.rucio.server.httpd_config.grid_site_enabled | quote }}
+              value: {{ .Values.rucio.server.httpd_config.grid_site_enabled }}
             - name: RUCIO_HTTPD_ENCODED_SLASHES
-              value: {{ .Values.rucio.server.httpd_config.encoded_slashes | quote }}
+              value: {{ .Values.rucio.server.httpd_config.encoded_slashes }}
             - name: RUCIO_HOSTNAME
               value: "{{ .Values.rucio.server.host }}"
             - name: RUCIO_CFG_DATABASE_DEFAULT
@@ -70,6 +70,20 @@ spec:
               value: "/etc/grid-security/hostkey.pem"
             - name: X509_CERT_DIR
               value: "/etc/grid-security/certificates"
+            - name: RUCIO_HTTPD_MAX_REQUEST_WORKERS
+              value: {{ .Values.rucio.server.httpd_config.workers.MaxRequestWorkers | quote }}
+            - name: RUCIO_HTTPD_SERVER_LIMIT
+              value: {{ .Values.rucio.server.httpd_config.workers.ServerLimit | quote }}
+            - name: RUCIO_HTTPD_START_SERVERS
+              value: {{ .Values.rucio.server.httpd_config.workers.StartServers | quote }}
+            - name: RUCIO_HTTPD_MIN_SPARE_THREADS
+              value: {{ .Values.rucio.server.httpd_config.workers.MinSpareThreads | quote }}
+            - name: RUCIO_HTTPD_MAX_SPARE_THREADS
+              value: {{ .Values.rucio.server.httpd_config.workers.MaxSpareThreads | quote }}
+            - name: RUCIO_HTTPD_THREADS_PER_CHILD
+              value: {{ .Values.rucio.server.httpd_config.workers.ThreadsPerChild | quote }}
+            - name: RUCIO_HTTPD_MAX_CONNECTIONS_PER_CHILD
+              value: {{ .Values.rucio.server.httpd_config.workers.MaxConnectionsPerChild | quote }}              
 ---
 # ===================================================================
 #  Rucio Client Deployment
