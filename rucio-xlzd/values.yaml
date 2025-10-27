@@ -105,7 +105,7 @@ client:
   image:
     repository: "rucio/rucio-clients"
     tag: "release-38.3.0"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   config:
     #auth_type: "x509"
     auth_type: "userpass"
