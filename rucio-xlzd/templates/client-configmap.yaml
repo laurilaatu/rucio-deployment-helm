@@ -12,7 +12,6 @@ data:
     account = {{ .Values.client.config.account }}
     username = {{ .Values.client.config.username }}
     password = {{ .Values.client.config.password }}
-    # This path is now updated to the simpler, consistent location.
     ca_cert = /etc/grid-security/ca.pem
     client_cert = /opt/rucio/certs/user/usercert.pem
     client_key = /opt/rucio/certs/user/userkey.pem
@@ -27,7 +26,6 @@ data:
     
     echo "RSE Registration Script: Starting..."
     
-    # 1. Wait for the init-job to finish by checking 'rucio whoami'
     echo "Waiting for Rucio server and init-job to complete..."
     until rucio whoami; do
       echo "Rucio not ready yet. Retrying in 10 seconds..."
@@ -35,10 +33,11 @@ data:
     done
     echo "✅ Rucio server is ready."
     
-    # 2. Check if the RSE already exists to make this script idempotent
-    # --- FIX 1 ---
-    if rucio rse get "$RSE_NAME" >/dev/null 2>&1; then
-      echo "✅ RSE '$RSE_NAME' already exists. Exiting."
+    # --- UPDATED CHECK ---
+    # Use 'list-attributes' as a more reliable check for existence.
+    echo "Checking if RSE '$RSE_NAME' already exists..."
+    if rucio rse list-attributes "$RSE_NAME" >/dev/null 2>&1; then
+      echo "✅ RSE '$RSE_NAME' already exists. Exiting script."
       exit 0
     fi
     
@@ -46,30 +45,29 @@ data:
     echo "Registering new RSE: $RSE_NAME"
     
     # Step 3.1: Add the RSE
-    # --- FIX 2 ---
     rucio rse add "$RSE_NAME"
     
     # Step 3.2: Set the XRootD protocol
-    # --- FIX 3 ---
-    rucio rse set-protocol --rse "$RSE_NAME" --scheme root \
+    # --- COMMAND FIX: 'add-protocol' ---
+    rucio rse add-protocol --rse "$RSE_NAME" --scheme root \
       --hostname "xlzd-data.boulby.ac.uk" --port 1094 \
       --prefix "/rucio/" \
       --impl "rucio.rse.protocols.xrootd.Default" \
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
 
     # Step 3.3: Set the token attribute
-    # --- FIX 4 ---
-    rucio rse set-attribute --rse "$RSE_NAME" \
+    # --- COMMAND FIX: 'set-attr' ---
+    rucio rse set-attr --rse "$RSE_NAME" \
       --key "auth_token" \
       --value "$TOKEN_PATH"
 
     # Step 3.4: Set other attributes
-    rucio rse set-attribute --rse "$RSE_NAME" --key "sign_url" --value "wan.read"
-    rucio rse set-attribute --rse "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
+    rucio rse set-attr --rse "$RSE_NAME" --key "sign_url" --value "wan.read"
+    rucio rse set-attr --rse "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
     
     # Step 3.5: Set a limit
-    # --- FIX 5 ---
-    rucio rse set-limit --rse "$RSE_NAME" --name storage --value 1000000000000 # 1TB
+    # --- COMMAND FIX: 'set-limits' ---
+    rucio rse set-limits --rse "$RSE_NAME" --name storage --value 1000000000000 # 1TB
 
     echo "✅ Successfully registered RSE '$RSE_NAME'."
 {{- end }}
