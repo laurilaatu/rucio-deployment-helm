@@ -42,25 +42,25 @@ data:
     fi
 
     echo "Setting RSE protocol..."
-    # --- SYNTAX ATTEMPT 3: 'rse protocol add' ---
-    rucio rse protocol add --rse "$RSE_NAME" --scheme root \
+    # --- FIX: RSE_NAME is now a positional argument ---
+    rucio rse protocol add "$RSE_NAME" --scheme root \
       --hostname "xlzd-data.boulby.ac.uk" --port 1094 \
       --prefix "/rucio/" \
       --impl "rucio.rse.protocols.xrootd.Default" \
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
 
     echo "Setting RSE attributes..."
-    # --- SYNTAX ATTEMPT 3: 'rse attribute add' ---
-    rucio rse attribute add --rse "$RSE_NAME" \
+    # --- FIX: RSE_NAME is now a positional argument ---
+    rucio rse attribute add "$RSE_NAME" \
       --key "auth_token" \
       --value "$TOKEN_PATH"
 
-    rucio rse attribute add --rse "$RSE_NAME" --key "sign_url" --value "wan.read"
-    rucio rse attribute add --rse "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
+    rucio rse attribute add "$RSE_NAME" --key "sign_url" --value "wan.read"
+    rucio rse attribute add "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
     
     echo "Setting RSE limits..."
-    # --- SYNTAX ATTEMPT 3: 'account limit add' ---
-    rucio account limit add root --rse "$RSE_NAME" --bytes 1000000000000 # 1TB
+    # --- FIX: RSE_NAME is now a positional argument ---
+    rucio account limit add root "$RSE_NAME" --bytes 1000000000000 # 1TB
 
     echo "✅ Successfully configured RSE '$RSE_NAME'."
 {{- end }}
