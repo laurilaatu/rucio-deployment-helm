@@ -20,4 +20,54 @@ data:
 
     [database]
     default = postgresql+psycopg://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}
+
+  register-rse.sh: |
+    #!/bin.sh
+    set -e
+    
+    RSE_NAME="BOULBY-XROOTD"
+    TOKEN_PATH="/opt/rucio/etc/rse-credentials/boulby-xrootd/xrootd_token"
+    
+    echo "RSE Registration Script: Starting..."
+    
+    # 1. Wait for the init-job to finish by checking 'rucio whoami'
+    echo "Waiting for Rucio server and init-job to complete..."
+    until rucio whoami; do
+      echo "Rucio not ready yet. Retrying in 10 seconds..."
+      sleep 10
+    done
+    echo "✅ Rucio server is ready."
+    
+    # 2. Check if the RSE already exists to make this script idempotent
+    if rucio-admin rse get "$RSE_NAME" >/dev/null 2>&1; then
+      echo "✅ RSE '$RSE_NAME' already exists. Exiting."
+      exit 0
+    fi
+    
+    # 3. Register the RSE
+    echo "Registering new RSE: $RSE_NAME"
+    
+    # Step 3.1: Add the RSE
+    rucio-admin rse add "$RSE_NAME"
+    
+    # Step 3.2: Set the XRootD protocol
+    rucio-admin rse set-protocol --rse "$RSE_NAME" --scheme root \
+      --hostname "xlzd-data.boulby.ac.uk" --port 1094 \
+      --prefix "/rucio/" \
+      --impl "rucio.rse.protocols.xrootd.Default" \
+      --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
+
+    # Step 3.3: Set the token attribute
+    rucio-admin rse set-attribute --rse "$RSE_NAME" \
+      --key "auth_token" \
+      --value "$TOKEN_PATH"
+
+    # Step 3.4: Set other attributes
+    rucio-admin rse set-attribute --rse "$RSE_NAME" --key "sign_url" --value "wan.read"
+    rucio-admin rse set-attribute --rse "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
+    
+    # Step 3.5: Set a limit
+    rucio-admin rse set-limit --rse "$RSE_NAME" --name storage --value 1000000000000 # 1TB
+
+    echo "✅ Successfully registered RSE '$RSE_NAME'."
 {{- end }}

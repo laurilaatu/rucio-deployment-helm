@@ -35,6 +35,9 @@ rucio:
       - name: ca-certs-volume
         secret:
           secretName: rucio-ca-secret
+      - name: rse-boulby-creds-volume
+        secret:
+          secretName: rucio-rse-boulby-xrootd-credentials          
 
     # This section now uses subPath to mount individual files exactly where Apache needs them.
     extraVolumeMounts:
@@ -57,6 +60,10 @@ rucio:
         mountPath: /etc/grid-security/certificates
         readOnly: true
         #subPath: ca.pem
+      - name: rse-boulby-creds-volume
+        mountPath: /opt/rucio/etc/rse-credentials/boulby-xrootd/xrootd_token
+        subPath: xrootd_token
+        readOnly: true
         
 
     service:
@@ -168,6 +175,10 @@ security:
     # user_cert_path: "~/.globus/usercert.pem"
     # user_key_path: "~/.globus/userkey.pem"
     ca_cert_path: "/etc/grid-security/certificates" # TODO: check if the folder is populated by the server, should come from outside the container
+
+rseCredentials:
+  boulbyXrootd:
+    token: ""
 
 # Rucio Daemons (Optional)
 # TODO: should have token secrets
