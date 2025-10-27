@@ -42,15 +42,15 @@ data:
     fi
 
     echo "Setting RSE protocol..."
-    # --- FIX: RSE_NAME is now a positional argument ---
-    rucio rse protocol add "$RSE_NAME" --scheme root \
-      --hostname "xlzd-data.boulby.ac.uk" --port 1094 \
+    # --- FIX: Using '--host' and positional RSE (matches k8s-tutorial) ---
+    rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme root \
+      --port 1094 \
       --prefix "/rucio/" \
       --impl "rucio.rse.protocols.xrootd.Default" \
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
 
     echo "Setting RSE attributes..."
-    # --- FIX: RSE_NAME is now a positional argument ---
+    # --- FIX: Using positional RSE (matches k8s-tutorial) ---
     rucio rse attribute add "$RSE_NAME" \
       --key "auth_token" \
       --value "$TOKEN_PATH"
@@ -59,8 +59,8 @@ data:
     rucio rse attribute add "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
     
     echo "Setting RSE limits..."
-    # --- FIX: RSE_NAME is now a positional argument ---
-    rucio account limit add root "$RSE_NAME" --bytes 1000000000000 # 1TB
+    # --- FIX: Using '--rse' flag (matches k8s-tutorial) ---
+    rucio account limit add root --rse "$RSE_NAME" --bytes 1000000000000 # 1TB
 
     echo "✅ Successfully configured RSE '$RSE_NAME'."
 {{- end }}
