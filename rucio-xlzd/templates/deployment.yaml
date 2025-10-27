@@ -128,13 +128,13 @@ spec:
               mountPath: /app/scripts/register-rse.sh
               subPath: register-rse.sh
               readOnly: true              
-          lifecycle:
-            postStart:
-              exec:
-               command: ["/bin/sh", "-c", "/app/scripts/register-rse.sh"]
             # This is the extraVolumeMount for the CA certs
             {{- with .Values.client.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          lifecycle:
+            postStart:
+              exec:
+               command: ["/bin/sh", "-c", "/app/scripts/register-rse.sh"]            
 
 {{- end }}
