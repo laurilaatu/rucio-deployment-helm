@@ -22,7 +22,7 @@ data:
     default = postgresql+psycopg://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.postgresql.auth.database }}
 
   register-rse.sh: |
-    #!/bin.sh
+    #!/bin/sh
     set -e
     
     RSE_NAME="BOULBY-XROOTD"

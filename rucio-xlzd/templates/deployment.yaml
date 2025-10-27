@@ -109,9 +109,6 @@ spec:
           configMap:
             name: rucio-client-config
             defaultMode: 0755
-        - name: rucio-config-volume
-          configMap:
-            name: rucio-client-config
         # This is the extraVolume for the CA certs
         {{- with .Values.client.extraVolumes }}
         {{- toYaml . | nindent 8 }}
