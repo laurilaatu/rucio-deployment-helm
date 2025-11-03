@@ -17,12 +17,11 @@ data:
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3
 
-  register-rse.sh: |
+register-rse.sh: |
     #!/bin/sh
     set -e
     
     RSE_NAME="BOULBY-XROOTD"
-    TOKEN_PATH="/opt/rucio/etc/rse-credentials/boulby-xrootd/xrootd_token"
     
     echo "RSE Registration Script: Starting..."
     
@@ -34,7 +33,6 @@ data:
     echo "✅ Rucio server is ready."
     
     echo "Checking if RSE '$RSE_NAME' already exists..."
-    # Check for an attribute; if error, it doesn't exist
     if rucio rse attribute get "$RSE_NAME" rse_type >/dev/null 2>&1; then
       echo "✅ RSE '$RSE_NAME' already exists. Ensuring configuration..."
     else
@@ -42,27 +40,36 @@ data:
       rucio rse add "$RSE_NAME"
     fi
 
-    echo "Attempting to delete existing protocol (in case of previous errors)..."
-    # Try deleting first to ensure clean state, ignore errors if it doesn't exist
+    echo "Attempting to delete old protocol (if exists)..."
     rucio rse protocol delete "$RSE_NAME" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
 
-    echo "Setting RSE protocol using GFAL implementation..."
-    # Add the protocol with GFAL
+    echo "Setting RSE protocol using GFAL..."
     rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme root \
       --port 1094 \
       --prefix "/rucio/" \
       --impl "rucio.rse.protocols.gfal.Default" \
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
 
-    echo "Setting RSE attributes..."
-    # Add attributes (will update if they exist)
-    rucio rse attribute add "$RSE_NAME" --key "auth_token" --value "$TOKEN_PATH"
+    echo "Setting RSE attributes for OIDC authentication..."
+    
+    # --- 1. REMOVE the old static token attribute ---
+    rucio rse attribute delete "$RSE_NAME" auth_token || true
+    
+    # --- 2. ADD the new OIDC attributes ---
+    rucio rse attribute add "$RSE_NAME" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk/"
+    rucio rse attribute add "$RSE_NAME" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
+    rucio rse attribute add "$RSE_NAME" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
+    rucio rse attribute add "$RSE_NAME" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
+    
+    # This is the "audience" for the token, which is usually the storage service
+    rucio rse attribute add "$RSE_NAME" --key "oidc_audience" --value "https://xlzd-data.boulby.ac.uk"
+
+    # --- 3. Keep these attributes ---
     rucio rse attribute add "$RSE_NAME" --key "sign_url" --value "wan.read"
     rucio rse attribute add "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
     
     echo "Setting RSE limits..."
-    # Add limit (will update if it exists)
     rucio account limit add root --rse "$RSE_NAME" --bytes 1000000000000 # 1TB
 
-    echo "✅ Successfully configured RSE '$RSE_NAME'."
+    echo "✅ Successfully configured RSE '$RSE_NAME' for OIDC."
 {{- end }}
