@@ -23,7 +23,6 @@ spec:
       containers:
         - name: rucio-server
           image: {{ .Values.rucio.server.image }}
-
           ports:
             - name: http
               containerPort: 80
@@ -31,30 +30,8 @@ spec:
             - name: https
               containerPort: 443
               protocol: TCP
-          
-          lifecycle:
-            postStart:
-              exec:
-                # This script will run as root after the container starts
-                command: ["/bin/sh", "-c"]
-                args:
-                  - |
-                    set -ex
-                    echo "--- [postStart Hook] Starting package installation as $(whoami) ---"
-                    
-                    # 1. Add the EGI repository
-                    echo "Downloading EGI repo file..."
-                    curl -o /etc/yum.repos.d/egi-trustanchors.repo https://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo
-                    
-                    # 2. Install certificates and GFAL plugin
-                    echo "Installing ca-policy-egi-core and gfal2-plugin-xrootd..."
-                    dnf install -y ca-policy-egi-core gfal2-plugin-xrootd
-                    
-                    # 3. Clean up
-                    dnf clean all
-                    
-                    echo "--- [postStart Hook] Package installation complete ---"
 
+          # --- ADDED THIS SECTION ---
           # These probes read the probe configuration from your values.yaml.
           # They allow Kubernetes to check if the server is listening without
           # needing full Rucio authentication, solving the startup deadlock.
@@ -108,7 +85,7 @@ spec:
             - name: RUCIO_HTTPD_MAX_CONNECTIONS_PER_CHILD
               value: {{ .Values.rucio.server.workers.MaxConnectionsPerChild | quote }}              
 ---
-#=============================================================
+# ===================================================================
 #  Rucio Client Deployment
 # ===================================================================
 {{- if .Values.client.enabled }}
