@@ -17,7 +17,7 @@ data:
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3
 
-register-rse.sh: |
+  register-rse.sh: |
     #!/bin/sh
     set -e
     
