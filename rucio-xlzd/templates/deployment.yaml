@@ -31,18 +31,18 @@ spec:
             - name: https
               containerPort: 443
               protocol: TCP
-              
-  # --- This hook will now log to a file and not crash the pod ---
+          # --- This hook logs to /tmp and is guaranteed not to crash the pod ---
           lifecycle:
             postStart:
               exec:
                 command: ["/bin/sh", "-c"]
+                # This runs the entire script in a subshell.
+                # All output (stdout & stderr) goes to the log file in /tmp.
+                # '|| true' ensures the hook exits 0, even if 'set -e'
+                # causes the subshell to fail.
                 args:
                   - |
-                    # This wraps the entire script.
-                    # All output (stdout & stderr) is redirected to the log file.
-                    # '|| true' ensures the hook exits 0 even if the script fails.
-                    {
+                    (
                       set -ex
                       echo "--- [postStart Hook] Running as $(whoami) at $(date) ---"
                       
@@ -59,9 +59,8 @@ spec:
                       dnf clean all
                       
                       echo "--- [postStart Hook] Package installation script finished ---"
-                    } > /var/log/poststart-hook.log 2>&1 || true
+                    ) > /tmp/poststart-hook.log 2>&1 || true
           # --- End of hook ---
-
           {{- with .Values.rucio.server.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
