@@ -40,16 +40,15 @@ data:
       rucio rse add "$RSE_NAME"
     fi
 
-    echo "Attempting to delete old protocol (if exists)..."
+    echo "Setting RSE protocol using GFAL..."
+    # Try deleting old protocol first to be safe
     rucio rse protocol delete "$RSE_NAME" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
 
-    echo "Setting RSE protocol using GFAL..."
+    # Add the protocol with NO prefix
     rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme root \
       --port 1094 \
-      --prefix "/rucio/" \
       --impl "rucio.rse.protocols.gfal.Default" \
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
-
     echo "Setting RSE attributes for OIDC authentication..."
     
     # --- 1. REMOVE the old static token attribute ---
