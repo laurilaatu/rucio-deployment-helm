@@ -23,6 +23,7 @@ spec:
       containers:
         - name: rucio-server
           image: {{ .Values.rucio.server.image }}
+          # The container starts as root, so this hook will run as root
           ports:
             - name: http
               containerPort: 80
@@ -30,11 +31,35 @@ spec:
             - name: https
               containerPort: 443
               protocol: TCP
+          
+          # --- This hook will run as root to install certs ---
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c"]
+                args:
+                  - |
+                    set -ex
+                    echo "--- [postStart Hook] Running as $(whoami) ---"
+                    
+                    # 1. Add the EGI repository
+                    echo "[postStart Hook] Downloading EGI repo file..."
+                    curl -o /etc/yum.repos.d/egi-trustanchors.repo https://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo
+                    
+                    # 2. Install certificates
+                    echo "[postStart Hook] Installing ca-policy-egi-core..."
+                    dnf install -y ca-policy-egi-core
+                    
+                    # 3. (Optional but recommended) Install GFAL plugin
+                    echo "[postStart Hook] Installing gfal2-plugin-xrootd..."
+                    dnf install -y gfal2-plugin-xrootd
 
-          # --- ADDED THIS SECTION ---
-          # These probes read the probe configuration from your values.yaml.
-          # They allow Kubernetes to check if the server is listening without
-          # needing full Rucio authentication, solving the startup deadlock.
+                    # 4. Clean up
+                    dnf clean all
+                    
+                    echo "--- [postStart Hook] Package installation complete ---"
+          # --- End of hook ---
+
           {{- with .Values.rucio.server.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
@@ -43,7 +68,6 @@ spec:
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          # --- END OF ADDED SECTION ---
 
           volumeMounts:
             - name: rucio-config-volume
