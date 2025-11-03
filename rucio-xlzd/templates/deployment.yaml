@@ -31,17 +31,18 @@ spec:
             - name: https
               containerPort: 443
               protocol: TCP
-          # --- This hook logs to /tmp and is guaranteed not to crash the pod ---
+
+          # --- Hook to fetch certificates ---
           lifecycle:
             postStart:
               exec:
-                command: ["/bin/sh", "-c"]
-                # This runs the entire script in a subshell.
-                # All output (stdout & stderr) goes to the log file in /tmp.
-                # '|| true' ensures the hook exits 0, even if 'set -e'
-                # causes the subshell to fail.
-                args:
+                command:
+                  - "/bin/bash"
+                  - "-c"
                   - |
+                    # This runs the entire script in a subshell.
+                    # All output (stdout & stderr) goes to the log file in /tmp.
+                    # '|| true' ensures the hook exits 0, even if the script fails.
                     (
                       set -ex
                       echo "--- [postStart Hook] Running as $(whoami) at $(date) ---"
@@ -61,6 +62,7 @@ spec:
                       echo "--- [postStart Hook] Package installation script finished ---"
                     ) > /tmp/poststart-hook.log 2>&1 || true
           # --- End of hook ---
+
           {{- with .Values.rucio.server.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
