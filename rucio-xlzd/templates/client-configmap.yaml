@@ -40,30 +40,29 @@ data:
       rucio rse add "$RSE_NAME"
     fi
 
-    echo "Setting RSE protocol using GFAL..."
-    # Try deleting old protocol first to be safe
+    echo "Attempting to delete old protocol (if exists)..."
     rucio rse protocol delete "$RSE_NAME" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
 
-    # Add the protocol with NO prefix
+    echo "Setting RSE protocol using OIDC implementation..."
+    
+    # --- THIS IS THE FIX ---
+    # We are using 'oidc.Default' instead of 'gfal.Default'
+    # This implementation is built to read the 'oidc_*' attributes.
     rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme root \
       --port 1094 \
-      --impl "rucio.rse.protocols.gfal.Default" \
+      --prefix "/" \
+      --impl "rucio.rse.protocols.oidc.Default" \
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
+
     echo "Setting RSE attributes for OIDC authentication..."
     
-    # --- 1. REMOVE the old static token attribute ---
     rucio rse attribute delete "$RSE_NAME" auth_token || true
     
-    # --- 2. ADD the new OIDC attributes ---
     rucio rse attribute add "$RSE_NAME" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk/"
     rucio rse attribute add "$RSE_NAME" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_NAME" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
     rucio rse attribute add "$RSE_NAME" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
-    
-    # This is the "audience" for the token, which is usually the storage service
     rucio rse attribute add "$RSE_NAME" --key "oidc_audience" --value "https://xlzd-data.boulby.ac.uk"
-
-    # --- 3. Keep these attributes ---
     rucio rse attribute add "$RSE_NAME" --key "sign_url" --value "wan.read"
     rucio rse attribute add "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
     
