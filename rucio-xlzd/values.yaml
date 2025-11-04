@@ -140,6 +140,14 @@ client:
       subPath: ca.pem
       readOnly: true
 
+  resources:
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+    requests:
+      memory: "500Mi"
+      cpu: "200m"      
+
   # The command to keep the container running.
   command: ["tail", "-f", "/dev/null"]
 
