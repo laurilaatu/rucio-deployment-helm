@@ -142,11 +142,11 @@ client:
 
   resources:
     limits:
-      memory: "1Gi"
-      cpu: "500m"
+      memory: "4Gi"
+      cpu: "2000m"
     requests:
-      memory: "500Mi"
-      cpu: "200m"      
+      memory: "2Gi"
+      cpu: "1000m"      
 
   # The command to keep the container running.
   command: ["tail", "-f", "/dev/null"]
