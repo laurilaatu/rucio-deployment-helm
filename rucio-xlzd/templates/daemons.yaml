@@ -1,9 +1,9 @@
 {{- $daemons := list 
-  (dict "key" "oauthManager" "name" "oauth-manager" "args" "rucio-oauth-manager")
+  (dict "key" "oauthManager" "name" "oauth-manager" "args" "rucio-oauth-manager --threads 1")
   (dict "key" "conveyorTransferSubmitter" "name" "conveyor-submitter" "args" "rucio-conveyor-submitter --total-threads 1")
   (dict "key" "conveyorPoller" "name" "conveyor-poller" "args" "rucio-conveyor-poller --total-threads 1")
   (dict "key" "conveyorFinisher" "name" "conveyor-finisher" "args" "rucio-conveyor-finisher --total-threads 1")
-  (dict "key" "judgeEvaluator" "name" "judge-evaluator" "args" "rucio-judge-evaluator --total-threads 1")
+  (dict "key" "judgeEvaluator" "name" "judge-evaluator" "args" "rucio-judge-evaluator --threads 1")
 -}}
 
 {{- range $daemon := $daemons }}
@@ -52,8 +52,10 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |
-              # Simple wrapper to ensure CA certs are ready before starting
-              cp /etc/grid-security/certificates/ca.pem /etc/pki/tls/certs/ca-bundle.crt || true
+              # FIX: Point to the actual mount location (/etc/grid-security/ca.pem)
+              cp /etc/grid-security/ca.pem /etc/pki/tls/certs/ca-bundle.crt || true
+              
+              # Run the daemon with specific arguments
               {{ $daemon.args }}
           
           volumeMounts:
@@ -74,6 +76,7 @@ spec:
               mountPath: /etc/grid-security/hostkey.pem
               subPath: hostkey.pem
               readOnly: true
+            # FIX: Ensure this mount matches the 'cp' command source
             - name: ca-certs-volume
               mountPath: /etc/grid-security/ca.pem
               subPath: ca.pem
@@ -90,7 +93,7 @@ spec:
               value: "/etc/grid-security/hostkey.pem"
             - name: X509_CERT_DIR
               value: "/etc/grid-security/certificates"
-            # OIDC Specific Env Vars (Some daemons check these)
+            # OIDC Specific Env Vars
             - name: RUCIO_ENABLE_SSL
               value: "True"
   {{- end }}
