@@ -16,6 +16,7 @@ spec:
         - name: rucio-config-volume
           configMap:
             name: rucio-config
+        # This loop pulls in the OIDC secret volume defined in your values.yaml
         {{- with .Values.rucio.server.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -23,6 +24,7 @@ spec:
       containers:
         - name: rucio-server
           image: {{ .Values.rucio.server.image }}
+          # The container starts as root, so this hook will run as root
           ports:
             - name: http
               containerPort: 80
@@ -39,6 +41,9 @@ spec:
                   - "/bin/bash"
                   - "-c"
                   - |
+                    # This runs the entire script in a subshell.
+                    # All output (stdout & stderr) goes to the log file in /tmp.
+                    # '|| true' ensures the hook exits 0, even if the script fails.
                     (
                       set -ex
                       echo "--- [postStart Hook] Running as $(whoami) at $(date) ---"
@@ -72,6 +77,7 @@ spec:
             - name: rucio-config-volume
               mountPath: /opt/rucio/etc/rucio.cfg
               subPath: rucio.cfg
+            # This loop mounts the idpsecrets.json defined in your values.yaml
             {{- with .Values.rucio.server.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -106,4 +112,59 @@ spec:
             - name: RUCIO_HTTPD_THREADS_PER_CHILD
               value: {{ .Values.rucio.server.workers.ThreadsPerChild | quote }}
             - name: RUCIO_HTTPD_MAX_CONNECTIONS_PER_CHILD
-              value: {{ .Values.rucio.server.workers.MaxConnectionsPerChild | quote }}
+              value: {{ .Values.rucio.server.workers.MaxConnectionsPerChild | quote }}              
+---
+# ===================================================================
+#  Rucio Client Deployment
+# ===================================================================
+{{- if .Values.client.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rucio-client
+spec:
+  replicas: {{ .Values.client.replicas }}
+  selector:
+    matchLabels:
+      app: rucio-client
+  template:
+    metadata:
+      labels:
+        app: rucio-client
+    spec:
+      volumes:
+        # Volume for the rucio.cfg file from our ConfigMap
+        - name: rucio-config-volume
+          configMap:
+            name: rucio-client-config
+            defaultMode: 0755
+        # This is the extraVolume for the CA certs
+        {{- with .Values.client.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+
+      containers:
+        - name: rucio-client
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
+          imagePullPolicy: {{ .Values.client.image.pullPolicy | default "IfNotPresent" }}
+          command: ["tail", "-f", "/dev/null"]
+          #command: ["/bin/sh", "/app/scripts/register-rse.sh"]
+          volumeMounts:
+            # Mount the rucio.cfg file
+            - name: rucio-config-volume
+              mountPath: /opt/rucio/etc/rucio.cfg
+              subPath: rucio.cfg
+            - name: rucio-config-volume
+              mountPath: /app/scripts/register-rse.sh
+              subPath: register-rse.sh
+              readOnly: true              
+            # This is the extraVolumeMount for the CA certs
+            {{- with .Values.client.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          lifecycle:
+            postStart:
+              exec:
+               command: ["/bin/sh", "-c", "/app/scripts/register-rse.sh"]            
+
+{{- end }}
