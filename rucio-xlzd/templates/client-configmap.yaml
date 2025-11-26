@@ -16,6 +16,9 @@ data:
     client_cert = /opt/rucio/certs/user/usercert.pem
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3
+    # OIDC specific settings
+    oidc_scope = openid profile storage.create:/ storage.read:/ storage.modify:/ wlcg wlcg.groups
+    oidc_polling = True
 
   register-rse.sh: |
     #!/bin/sh

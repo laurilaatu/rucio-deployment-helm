@@ -1,0 +1,97 @@
+{{- $daemons := list 
+  (dict "key" "oauthManager" "name" "oauth-manager" "args" "rucio-oauth-manager")
+  (dict "key" "conveyorTransferSubmitter" "name" "conveyor-submitter" "args" "rucio-conveyor-submitter --total-threads 1")
+  (dict "key" "conveyorPoller" "name" "conveyor-poller" "args" "rucio-conveyor-poller --total-threads 1")
+  (dict "key" "conveyorFinisher" "name" "conveyor-finisher" "args" "rucio-conveyor-finisher --total-threads 1")
+  (dict "key" "judgeEvaluator" "name" "judge-evaluator" "args" "rucio-judge-evaluator --total-threads 1")
+-}}
+
+{{- range $daemon := $daemons }}
+  {{- $countKey := printf "%sCount" $daemon.key -}}
+  {{- $count := index $.Values.daemons $countKey | default 0 }}
+  {{- if gt (int $count) 0 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Release.Name }}-{{ $daemon.name }}
+  labels:
+    app: {{ $daemon.name }}
+    rucio-daemon: "true"
+spec:
+  replicas: {{ $count }}
+  selector:
+    matchLabels:
+      app: {{ $daemon.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $daemon.name }}
+    spec:
+      volumes:
+        - name: rucio-config-volume
+          configMap:
+            name: rucio-config
+        # 1. Mount the OIDC Secret Volume
+        - name: oidc-secret-volume
+          secret:
+            secretName: rucio-oidc-secret
+            defaultMode: 0444
+        # 2. Mount Server Certificates (Needed for FTS authentication)
+        - name: server-certs-volume
+          secret:
+            secretName: rucio-server-certs
+        - name: ca-certs-volume
+          secret:
+            secretName: rucio-ca-secret
+
+      containers:
+        - name: {{ $daemon.name }}
+          image: "{{ $.Values.daemons.image }}"
+          imagePullPolicy: Always
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              # Simple wrapper to ensure CA certs are ready before starting
+              cp /etc/grid-security/certificates/ca.pem /etc/pki/tls/certs/ca-bundle.crt || true
+              {{ $daemon.args }}
+          
+          volumeMounts:
+            - name: rucio-config-volume
+              mountPath: /opt/rucio/etc/rucio.cfg
+              subPath: rucio.cfg
+            # 1. Mount the idpsecrets.json explicitly
+            - name: oidc-secret-volume
+              mountPath: /opt/rucio/etc/idpsecrets.json
+              subPath: idpsecrets.json
+              readOnly: true
+            # 2. Mount Certificates
+            - name: server-certs-volume
+              mountPath: /etc/grid-security/hostcert.pem
+              subPath: hostcert.pem
+              readOnly: true
+            - name: server-certs-volume
+              mountPath: /etc/grid-security/hostkey.pem
+              subPath: hostkey.pem
+              readOnly: true
+            - name: ca-certs-volume
+              mountPath: /etc/grid-security/ca.pem
+              subPath: ca.pem
+              readOnly: true
+          
+          env:
+            # Database Connection
+            - name: RUCIO_CFG_DATABASE_DEFAULT
+              value: "postgresql+psycopg://{{ $.Values.postgresql.auth.username }}:{{ $.Values.postgresql.auth.password }}@{{ $.Values.rucio.server.db_host }}/{{ $.Values.postgresql.auth.database }}"
+            # Certificate paths for the daemon (Used to talk to FTS)
+            - name: X509_USER_CERT
+              value: "/etc/grid-security/hostcert.pem"
+            - name: X509_USER_KEY
+              value: "/etc/grid-security/hostkey.pem"
+            - name: X509_CERT_DIR
+              value: "/etc/grid-security/certificates"
+            # OIDC Specific Env Vars (Some daemons check these)
+            - name: RUCIO_ENABLE_SSL
+              value: "True"
+  {{- end }}
+{{- end }}

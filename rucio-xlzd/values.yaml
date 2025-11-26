@@ -20,7 +20,7 @@ rucio:
       MinSpareThreads: 25
       MaxSpareThreads: 75
       ThreadsPerChild: 25
-      MaxConnectionsPerChild: 1000    
+      MaxConnectionsPerChild: 1000      
     fts_host: "https://fts3-public.cern.ch:8446"
     root_identity_dn: "CN=rucio-test-user,OU=Users,O=MyOrg,L=London,ST=London,C=GB"
 
@@ -62,8 +62,10 @@ rucio:
         mountPath: /etc/grid-security/certificates
         readOnly: true
         #subPath: ca.pem
+      # UPDATED: Mount idpsecrets.json specifically
       - name: oidc-secret-volume
-        mountPath: /opt/rucio/etc/oidc
+        mountPath: /opt/rucio/etc/idpsecrets.json
+        subPath: idpsecrets.json
         readOnly: true
         
 
@@ -82,9 +84,6 @@ rucio:
         memory: "2Gi"
         cpu: "2000m"
 
-    # --- ADDED THIS SECTION ---
-    # These probes check if the web server is listening without needing full Rucio authentication.
-    # This allows the pod to become 'Ready' so the bootstrap identity job can run.
     readinessProbe:
       tcpSocket:
         port: 443
@@ -99,6 +98,7 @@ rucio:
       periodSeconds: 20
       timeoutSeconds: 5
       failureThreshold: 3
+
 # Rucio Client Configuration
 client:
   enabled: true
@@ -108,17 +108,14 @@ client:
     tag: "release-38.3.0"
     pullPolicy: Always
   config:
-    #auth_type: "x509"
-    auth_type: "userpass"
+    auth_type: "userpass" 
     account: "root"
     username: "testuser"
     password: "testpass"
 
   security:
-    # The name of the secret containing the user's X.509 cert and key.
     userSecretName: "rucio-client-x509-secret"
 
-  # This section defines the two separate volumes we need.
   extraVolumes:
     - name: client-certs-volume
       secret:
@@ -128,13 +125,10 @@ client:
       secret:
         secretName: rucio-ca-secret
 
-  # This simplified section mounts only what is needed.
   extraVolumeMounts:
-    # Mounts the user's certificate and key.
     - name: client-certs-volume
       mountPath: /opt/rucio/certs/user
       readOnly: true
-    # Mounts the single CA certificate file to a standard, simple path.
     - name: ca-certs-volume
       mountPath: /etc/grid-security/ca.pem
       subPath: ca.pem
@@ -148,7 +142,6 @@ client:
       memory: "2Gi"
       cpu: "1000m"      
 
-  # The command to keep the container running.
   command: ["tail", "-f", "/dev/null"]
 
 
@@ -159,14 +152,10 @@ initJob:
   
 # Database Configuration (PostgreSQL)
 postgresql:
-  # --  Configuration of built-in postgresql database. If 'enabled: true', a postgresql instance will be deployed, otherwise, an external database must be provided in database.default value
   enabled: true
   auth:
-    # -- The database username for authentication
     username: rucio
-    # -- The password for the database user
     password: rucio
-    # -- The name of the database to be created and used by Rucio
     database: rucio
 
   image:
@@ -174,35 +163,35 @@ postgresql:
     tag: "14"
   persistence:
     enabled: false
-  #  size: 5Gi
 
 
 # X.509 Authentication for User Access
 security:
   x509:
     enabled: true
-    # user_cert_path: "~/.globus/usercert.pem"
-    # user_key_path: "~/.globus/userkey.pem"
-    ca_cert_path: "/etc/grid-security/certificates" # TODO: check if the folder is populated by the server, should come from outside the container
+    ca_cert_path: "/etc/grid-security/certificates" 
 
+# UPDATED: OIDC Configuration
 oidcCredentials:
-  clientId: ""
-  clientSecret: ""
+  # This key maps to 'admin_issuer' in rucio.cfg
+  adminIssuer: "xlzd"
+  issuerUrl: "https://xlzd-iam.boulby.ac.uk/"
+  clientId: "" # Set this or use --set oidcCredentials.clientId=...
+  clientSecret: "" # Set this or use --set oidcCredentials.clientSecret=...
+  # Redirect URI must match your service DNS
+  redirectUri: "https://rucio-service/auth/oidc_token"
 
-# Rucio Daemons (Optional)
-# TODO: should have token secrets
+# Rucio Daemons
 daemons: 
   enabled: true
   image: "rucio/rucio-daemons:release-38.3.0"
 
-
+  # CRITICAL: Added oauthManager to handle tokens
+  oauthManagerCount: 1
   conveyorTransferSubmitterCount: 1
   conveyorPollerCount: 1
   conveyorFinisherCount: 1
   conveyorReceiverCount: 1
-  # conveyorStagerCount: 1
-  # conveyorThrottlerCount: 1
-  # conveyerPreparerCount: 1
   judgeEvaluatorCount: 1
 
   conveyorTransferSubmitter:
@@ -240,9 +229,7 @@ daemons:
         memory: "200Mi"
         cpu: "700m"
 
-
   judgeEvaluator:
-
     resources:
       limits:
         memory: "4Gi"
@@ -250,8 +237,3 @@ daemons:
       requests:
         memory: "1Gi"
         cpu: "700m"
-
-# WebUI Configuration (Optional)
-#webui:
-#  enabled: false  # Set to true if WebUI is needed
-#  image: "rucio/rucio-webui:release-38.3.0"

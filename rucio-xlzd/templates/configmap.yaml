@@ -11,7 +11,6 @@ data:
     [database]
     default = postgresql+psycopg://{{ .Values.rucio.server.db_user }}:{{ .Values.rucio.server.db_password }}@{{ .Values.rucio.server.db_host }}/{{ .Values.rucio.server.db_name }}
 
-
     [client]
     rucio_host = {{ .Values.rucio.server.host }}
     auth_host = {{ .Values.rucio.server.host }}
@@ -25,7 +24,6 @@ data:
     email_from = rucio@example.com
 
     [trace]
-    # Default trace configuration.
     tracedir = /var/log/rucio/trace
     
     [policy]
@@ -38,5 +36,31 @@ data:
     default = generic
     schema = generic
 
+    [oidc]
+    idpsecrets = /opt/rucio/etc/idpsecrets.json
+    admin_issuer = {{ .Values.oidcCredentials.adminIssuer }}
+    expected_audience = rucio
+    expected_scope = openid profile
+
     [conveyor]
     fts_servers = {{ .Values.rucio.server.fts_host }}
+    allow_user_oidc_tokens = False
+    
+    # We use your local storage as the audience
+    request_oidc_audience = https://xlzd-data.boulby.ac.uk
+    
+    # CRITICAL: We include 'fts:submit-transfer' because your IAM supports it 
+    # and the CERN FTS requires it to accept the job.
+    request_oidc_scope = fts:submit-transfer openid profile offline_access
+
+    poller_oidc_support = True
+
+    [reaper]
+    oidc_account = root
+    
+    # We use your local storage as the audience
+    oidc_audience = https://xlzd-data.boulby.ac.uk
+    
+    # We use the full suite of storage scopes + wlcg (since your IAM provides it)
+    # The 'wlcg' scope helps with group mapping on the storage element.
+    oidc_scope = openid profile storage.create:/ storage.modify:/ storage.read:/ wlcg offline_access
