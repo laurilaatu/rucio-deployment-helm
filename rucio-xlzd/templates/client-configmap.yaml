@@ -48,10 +48,10 @@ data:
 
     echo "Setting RSE protocol using xrootd.Default implementation..."
     
-    rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme root \
+    rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme davs \
       --port 1094 \
       --prefix "/" \
-      --impl "rucio.rse.protocols.webdav.Default" \
+      --impl "rucio.rse.protocols.gfal.Default" \
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
 
     echo "Setting RSE attributes for OIDC authentication..."
