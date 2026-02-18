@@ -124,6 +124,11 @@ client:
     - name: ca-certs-volume
       secret:
         secretName: rucio-ca-secret
+    - name: oidc-secret-volume
+      secret:
+        secretName: rucio-oidc-secret
+        # Set permissions to be readable by the 'apache' user
+        defaultMode: 0444        
 
   extraVolumeMounts:
     - name: client-certs-volume
@@ -133,6 +138,11 @@ client:
       mountPath: /etc/grid-security/ca.pem
       subPath: ca.pem
       readOnly: true
+    # UPDATED: Mount idpsecrets.json specifically
+    - name: oidc-secret-volume
+      mountPath: /opt/rucio/etc/idpsecrets.json
+      subPath: idpsecrets.json
+      readOnly: true      
 
   resources:
     limits:

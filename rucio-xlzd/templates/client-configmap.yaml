@@ -20,6 +20,12 @@ data:
     oidc_scope = openid profile storage.create:/ storage.read:/ storage.modify:/ wlcg wlcg.groups
     oidc_polling = True
 
+    [oidc]
+    idpsecrets = /opt/rucio/etc/idpsecrets.json
+    admin_issuer = {{ .Values.oidcCredentials.adminIssuer }}
+    expected_audience = rucio
+    expected_scope = openid profile    
+
   register-rse.sh: |
     #!/bin/sh
     set -e
