@@ -148,7 +148,6 @@ spec:
           image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
           imagePullPolicy: {{ .Values.client.image.pullPolicy | default "IfNotPresent" }}
           command: ["tail", "-f", "/dev/null"]
-          #command: ["/bin/sh", "/app/scripts/register-rse.sh"]
           volumeMounts:
             # Mount the rucio.cfg file
             - name: rucio-config-volume
@@ -165,6 +164,31 @@ spec:
           lifecycle:
             postStart:
               exec:
-               command: ["/bin/sh", "-c", "/app/scripts/register-rse.sh"]            
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - |
+                    (
+                      set -ex
+                      echo "--- [postStart Hook] Running as $(whoami) at $(date) ---"
+                      
+                      echo "[postStart Hook] 1. Downloading EGI repo file..."
+                      curl -o /etc/yum.repos.d/egi-trustanchors.repo https://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo
+                      
+                      echo "[postStart Hook] 2. Installing ca-policy-egi-core..."
+                      dnf install -y ca-policy-egi-core
+                      
+                      echo "[postStart Hook] 3. Installing gfal2-plugin-xrootd..."
+                      dnf install -y gfal2-plugin-xrootd
+
+                      echo "[postStart Hook] 4. Clean up dnf..."
+                      dnf clean all
+
+                      echo "[postStart Hook] 5. Running RSE Registration Script..."
+                      # Execute the RSE registration script
+                      /bin/sh /app/scripts/register-rse.sh
+                      
+                      echo "--- [postStart Hook] Finished ---"
+                    ) > /tmp/poststart-hook.log 2>&1 || true
 
 {{- end }}
