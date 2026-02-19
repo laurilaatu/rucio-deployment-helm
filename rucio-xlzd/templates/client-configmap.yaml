@@ -22,7 +22,7 @@ data:
     oidc_polling = True
 
     oidc_issuer = {{ .Values.oidcCredentials.adminIssuer }}
-    oidc_audience ={{ .Values.oidcCredentials.adminIssuer }}
+    oidc_audience = rucio {{ .Values.oidcCredentials.adminIssuer }}
     auth_oidc_refresh_active = true
     auth_oidc_refresh_before_exp = 20
 
