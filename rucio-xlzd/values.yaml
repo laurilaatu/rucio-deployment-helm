@@ -185,7 +185,7 @@ security:
 oidcCredentials:
   # This key maps to 'admin_issuer' in rucio.cfg
   adminIssuer: "xlzd"
-  issuerUrl: "https://xlzd-iam.boulby.ac.uk/"
+  issuerUrl: "https://xlzd-iam.boulby.ac.uk"
   clientId: "" # Set this or use --set oidcCredentials.clientId=...
   clientSecret: "" # Set this or use --set oidcCredentials.clientSecret=...
   oidcAudience: "https://xlzd-data.boulby.ac.uk"
