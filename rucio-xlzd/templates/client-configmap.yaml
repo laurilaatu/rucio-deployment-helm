@@ -12,6 +12,7 @@ data:
     account = {{ .Values.client.config.account }}
     username = {{ .Values.client.config.username }}
     password = {{ .Values.client.config.password }}
+
     ca_cert = /etc/grid-security/ca.pem
     client_cert = /opt/rucio/certs/user/usercert.pem
     client_key = /opt/rucio/certs/user/userkey.pem
@@ -19,6 +20,11 @@ data:
     # OIDC specific settings
     oidc_scope = openid profile storage.create:/ storage.read:/ storage.modify:/ wlcg wlcg.groups
     oidc_polling = True
+
+    oidc_issuer = {{ .Values.oidcCredentials.adminIssuer }}
+    oidc_audience ={{ .Values.oidcCredentials.adminIssuer }}
+    auth_oidc_refresh_active = true
+    auth_oidc_refresh_before_exp = 20
 
     [oidc]
     idpsecrets = /opt/rucio/etc/idpsecrets.json

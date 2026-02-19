@@ -108,7 +108,7 @@ client:
     tag: "release-38.3.0"
     pullPolicy: Always
   config:
-    auth_type: "userpass" 
+    auth_type: "oidc" 
     account: "root"
     username: "testuser"
     password: "testpass"
@@ -188,6 +188,7 @@ oidcCredentials:
   issuerUrl: "https://xlzd-iam.boulby.ac.uk/"
   clientId: "" # Set this or use --set oidcCredentials.clientId=...
   clientSecret: "" # Set this or use --set oidcCredentials.clientSecret=...
+  oidcAudience: "https://xlzd-data.boulby.ac.uk"
   # Redirect URI must match your service DNS
   redirectUri: "https://rucio-service/auth/oidc_token"
 
