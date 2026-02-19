@@ -70,7 +70,7 @@ data:
     
     # The xrootd.Default protocol should still read these OIDC attributes
     rucio rse attribute delete "$RSE_NAME" auth_token || true
-    rucio rse attribute add "$RSE_NAME" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk/"
+    rucio rse attribute add "$RSE_NAME" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_NAME" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_NAME" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
     rucio rse attribute add "$RSE_NAME" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
