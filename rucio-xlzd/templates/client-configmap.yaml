@@ -7,7 +7,7 @@ data:
   rucio.cfg: |
     [client]
     rucio_host = {{ required "rucio.server.host is required!" .Values.rucio.server.host }}
-    auth_host = {{ required "rucio.server.host is required!" .Values.oidcCredentials.issuerUrl }}
+    auth_host = {{ required "rucio.server.host is required!" .Values.rucio.server.host }}
     auth_type = {{ .Values.client.config.auth_type }}
     account = {{ .Values.client.config.account }}
     username = {{ .Values.client.config.username }}
