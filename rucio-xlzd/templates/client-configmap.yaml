@@ -36,7 +36,7 @@ data:
     #!/bin/sh
     set -e
     
-    RSE_NAME="BOULBY-XROOTD"
+    RSE_NAME="BOULBY_XROOTD"
     
     echo "RSE Registration Script: Starting..."
     
