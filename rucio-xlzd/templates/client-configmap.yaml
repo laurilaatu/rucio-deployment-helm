@@ -36,7 +36,8 @@ data:
     #!/bin/sh
     set -e
     
-    RSE_NAME="BOULBY_XROOTD"
+    RSE_NAME="BOULBY-XROOTD"
+    NEW_RSE_NAME="UKI-LT2-IC-HEP-DISK"
     
     echo "RSE Registration Script: Starting..."
     
@@ -47,6 +48,9 @@ data:
     done
     echo "✅ Rucio server is ready."
     
+    # ===================================================================
+    #  Configure BOULBY-XROOTD
+    # ===================================================================
     echo "Checking if RSE '$RSE_NAME' already exists..."
     if rucio rse attribute get "$RSE_NAME" rse_type >/dev/null 2>&1; then
       echo "✅ RSE '$RSE_NAME' already exists. Ensuring configuration..."
@@ -59,7 +63,6 @@ data:
     rucio rse protocol delete "$RSE_NAME" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
 
     echo "Setting RSE protocol using xrootd.Default implementation..."
-    
     rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme davs \
       --port 1094 \
       --prefix "/" \
@@ -67,8 +70,6 @@ data:
       --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
 
     echo "Setting RSE attributes for OIDC authentication..."
-    
-    # The xrootd.Default protocol should still read these OIDC attributes
     rucio rse attribute delete "$RSE_NAME" auth_token || true
     rucio rse attribute add "$RSE_NAME" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_NAME" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
@@ -81,5 +82,33 @@ data:
     echo "Setting RSE limits..."
     rucio account limit add root --rse "$RSE_NAME" --bytes 1000000000000 # 1TB
 
-    echo "✅ Successfully configured RSE '$RSE_NAME' for OIDC."
+    echo "✅ Successfully configured RSE '$RSE_NAME'."
+
+    # ===================================================================
+    #  Configure UKI-LT2-IC-HEP-DISK
+    # ===================================================================
+    echo "Checking if RSE '$NEW_RSE_NAME' already exists..."
+    if rucio rse attribute get "$NEW_RSE_NAME" rse_type >/dev/null 2>&1; then
+      echo "✅ RSE '$NEW_RSE_NAME' already exists. Ensuring configuration..."
+    else
+      echo "Registering new RSE: $NEW_RSE_NAME"
+      rucio rse add "$NEW_RSE_NAME"
+    fi
+
+    echo "Attempting to delete old protocol (if exists)..."
+    rucio rse protocol delete "$NEW_RSE_NAME" --scheme davs --hostname "gfe02.grid.hep.ph.ic.ac.uk" --port 2880 || true
+
+    echo "Setting RSE protocol for $NEW_RSE_NAME..."
+    rucio rse protocol add "$NEW_RSE_NAME" \
+      --host "gfe02.grid.hep.ph.ic.ac.uk" \
+      --scheme "davs" \
+      --port 2880 \
+      --prefix "/pnfs/hep.ph.ic.ac.uk/data/xlzd/rstealth/" \
+      --impl "rucio.rse.protocols.gfal.Default" \
+      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
+
+    echo "Setting RSE limits for $NEW_RSE_NAME..."
+    rucio account limit add root --rse "$NEW_RSE_NAME" --bytes 1000000000000 # 1TB
+
+    echo "✅ Successfully configured RSE '$NEW_RSE_NAME'."
 {{- end }}
