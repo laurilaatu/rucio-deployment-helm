@@ -59,16 +59,6 @@ spec:
 
                       echo "[postStart Hook] 4. Clean up dnf..."
                       dnf clean all
-
-                      echo "[postStart Hook] 5. Building unified CA trust store..."
-                      cp /etc/grid-security/certificates/*.pem /etc/pki/ca-trust/source/anchors/ 2>/dev/null || true
-                      cp /etc/grid-security/ca.pem /etc/pki/ca-trust/source/anchors/ 2>/dev/null || true
-                      update-ca-trust extract
-
-                      echo "[postStart Hook] 6. Injecting bundle directly into Python certifi (Apache workaround)..."
-                      CERT_PATH=$(python3 -m certifi)
-                      cp /etc/pki/tls/certs/ca-bundle.crt $CERT_PATH
-
                       
                       echo "--- [postStart Hook] Package installation script finished ---"
                     ) > /tmp/poststart-hook.log 2>&1 || true
