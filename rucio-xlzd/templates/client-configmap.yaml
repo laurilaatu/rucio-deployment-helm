@@ -78,6 +78,8 @@ data:
     rucio rse attribute add "$RSE_NAME" --key "oidc_audience" --value "https://xlzd-data.boulby.ac.uk"
     rucio rse attribute add "$RSE_NAME" --key "sign_url" --value "wan.read"
     rucio rse attribute add "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
+    rucio rse attribute add "$RSE_NAME" --key "fts" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
+    rucio rse attribute add "$RSE_NAME" --key "fts3" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
     
     echo "Setting RSE limits..."
     rucio account limit add root --rse "$RSE_NAME" --bytes 1000000000000 # 1TB
@@ -119,6 +121,9 @@ data:
     
     rucio rse attribute add "$NEW_RSE_NAME" --key "sign_url" --value "wan.read"
     rucio rse attribute add "$NEW_RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
+
+    rucio rse attribute add "$NEW_RSE_NAME" --key "fts" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
+    rucio rse attribute add "$NEW_RSE_NAME" --key "fts3" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"    
 
     echo "Setting RSE limits for $NEW_RSE_NAME..."
     rucio account limit add root --rse "$NEW_RSE_NAME" --bytes 1000000000000 # 1TB
