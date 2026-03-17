@@ -59,7 +59,44 @@ spec:
 
                       echo "[postStart Hook] 4. Clean up dnf..."
                       dnf clean all
-                      
+
+                      echo "[postStart Hook] 5. Mapping OIDC Identity to root account..."
+                      python3 -c "
+                      import textwrap
+                      code = '''
+                      import inspect
+                      from rucio.core.identity import add_account_identity
+                      from rucio.common.types import InternalAccount
+                      from rucio.db.sqla.constants import IdentityType
+                      from rucio.common.exception import Duplicate
+
+                      account = InternalAccount('root')
+                      identity = 'SUB=702388ee-78ae-4e46-a967-77374bc7034a, ISS=https://xlzd-iam.boulby.ac.uk/'
+                      email = 'root@xlzd.boulby.ac.uk'
+
+                      sig = inspect.signature(add_account_identity)
+                      kwargs = {}
+                      for param in sig.parameters.values():
+                          if param.name == 'identity': kwargs[param.name] = identity
+                          elif 'type' in param.name: kwargs[param.name] = IdentityType.OIDC
+                          elif param.name == 'account': kwargs[param.name] = account
+                          elif param.name == 'email': kwargs[param.name] = email
+
+                      try:
+                          add_account_identity(**kwargs)
+                          print('✅ Successfully mapped OIDC identity to root!')
+                      except Duplicate:
+                          print('✅ OIDC identity already mapped to root (skipped).')
+                      except Exception as e:
+                          # Catching SQLAlchemy IntegrityErrors just in case
+                          if 'UniqueViolation' in str(e) or 'IntegrityError' in str(e):
+                              print('✅ OIDC identity already mapped to root (caught DB exception).')
+                          else:
+                              print(f'⚠️ Error mapping identity: {e}')
+                      '''
+                      exec(textwrap.dedent(code))
+                      "
+
                       echo "--- [postStart Hook] Package installation script finished ---"
                     ) > /tmp/poststart-hook.log 2>&1 || true
           # --- End of hook ---
