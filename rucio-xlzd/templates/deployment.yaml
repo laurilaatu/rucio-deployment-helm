@@ -61,9 +61,7 @@ spec:
                       dnf clean all
 
                       echo "[postStart Hook] 5. Mapping OIDC Identity to root account..."
-                      python3 -c "
-                      import textwrap
-                      code = '''
+                      python3 -c "import textwrap; exec(textwrap.dedent('''
                       import inspect
                       from rucio.core.identity import add_account_identity
                       from rucio.common.types import InternalAccount
@@ -93,9 +91,7 @@ spec:
                               print('✅ OIDC identity already mapped to root (caught DB exception).')
                           else:
                               print(f'⚠️ Error mapping identity: {e}')
-                      '''
-                      exec(textwrap.dedent(code))
-                      "
+                      '''))"
 
                       echo "--- [postStart Hook] Package installation script finished ---"
                     ) > /tmp/poststart-hook.log 2>&1 || true
