@@ -142,12 +142,11 @@ data:
     # ===================================================================
     echo "Setting up automated replication subscription..."
     
-    rucio-admin subscription add \
-      "Auto-Replicate-XLZD" \
-      "root" \
-      '{"scope": ["test"]}' \
-      '[{"copies": 1, "rse_expression": "'$NEW_RSE_NAME'"}]' \
-      "Automatically replicate all new test datasets to Imperial" || \
+    rucio subscription add "Auto-Replicate-XLZD" \
+      --account "root" \
+      --filter '{"scope": ["test"]}' \
+      --rule '[{"copies": 1, "rse_expression": "'$NEW_RSE_NAME'", "activity": "User Subscriptions"}]' \
+      --comment "Automated replication to Imperial" || \
       echo "✅ Subscription 'Auto-Replicate-XLZD' already exists (or failed to create)."
 
     echo "✅ RSE Registration & Replication Script: Finished."

@@ -206,6 +206,7 @@ daemons:
   conveyorReceiverCount: 1
   transmogrifierCount: 1
   judgeEvaluatorCount: 1
+  reaperCount: 1
 
   conveyorTransferSubmitter:
     activities: "'User Subscriptions'"
