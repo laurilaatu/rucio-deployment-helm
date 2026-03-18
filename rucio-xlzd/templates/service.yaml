@@ -13,6 +13,9 @@ spec:
       targetPort: {{ .Values.rucio.server.service.targetPort }}
       protocol: {{ .Values.rucio.server.service.protocol }}
       name: {{ .Values.rucio.server.service.name }}
+      {{- if eq .Values.rucio.server.service.type "NodePort" }}
+      nodePort: {{ .Values.rucio.server.service.nodePort }}
+      {{- end }}
   selector:
     app: rucio-server
 {{- end }}

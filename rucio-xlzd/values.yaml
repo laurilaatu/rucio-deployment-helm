@@ -70,11 +70,12 @@ rucio:
         
 
     service:
-      type: ClusterIP
+      type: NodePort
       port: 443
       targetPort: 443
       protocol: TCP
       name: https
+      nodePort: 30443
 
     resources:
       limits:
@@ -203,6 +204,7 @@ daemons:
   conveyorPollerCount: 1
   conveyorFinisherCount: 1
   conveyorReceiverCount: 1
+  transmogrifierCount: 1
   judgeEvaluatorCount: 1
 
   conveyorTransferSubmitter:
