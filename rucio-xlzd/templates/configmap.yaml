@@ -43,13 +43,14 @@ data:
     expected_scope = openid profile
 
     [conveyor]
+    transfertool = fts3    
     fts_servers = {{ .Values.rucio.server.fts_host }}
     allow_user_oidc_tokens = False
+    scheme = davs,https
+    webdav_transfer_mode = True    
     
-    # We use your local storage as the audience
+    # We use local storage as the audience
     request_oidc_audience = https://wlcg.cern.ch/jwt/v1/any    
-    # CRITICAL: We include 'fts:submit-transfer' because your IAM supports it 
-    # and the CERN FTS requires it to accept the job.
     request_oidc_scope = fts:submit-transfer openid profile offline_access
 
     poller_oidc_support = True
