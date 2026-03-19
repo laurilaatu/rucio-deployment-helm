@@ -18,7 +18,7 @@ data:
     client_key = /opt/rucio/certs/user/userkey.pem
     request_retries = 3
     # OIDC specific settings
-    oidc_scope = openid profile storage.create:/ storage.read:/ storage.modify:/ wlcg wlcg.groups
+    oidc_scope = openid profile offline_access storage.create:/ storage.read:/ storage.modify:/ wlcg wlcg.groups fts fts:submit-transfer
     oidc_polling = True
 
     oidc_issuer = {{ .Values.oidcCredentials.adminIssuer }}
