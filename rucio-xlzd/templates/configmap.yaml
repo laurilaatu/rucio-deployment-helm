@@ -45,7 +45,7 @@ data:
     [conveyor]
     transfertool = fts3    
     fts_servers = {{ .Values.rucio.server.fts_host }}
-    allow_user_oidc_tokens = False
+    allow_user_oidc_tokens = True
     scheme = davs,https
     webdav_transfer_mode = True    
     

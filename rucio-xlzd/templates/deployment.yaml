@@ -217,6 +217,8 @@ spec:
                       echo "[postStart Hook] 4. Clean up dnf..."
                       dnf clean all
 
+                      mkdir -p /tmp/root/.rucio_root/
+
                       echo "[postStart Hook] 5. Running RSE Registration Script..."
                       # Execute the RSE registration script
                       /bin/sh /app/scripts/register-rse.sh
