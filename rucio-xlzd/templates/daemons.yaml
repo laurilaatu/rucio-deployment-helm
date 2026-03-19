@@ -54,10 +54,20 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |
-              # FIX: Point to the actual mount location (/etc/grid-security/ca.pem)
-              cp /etc/grid-security/ca.pem /etc/pki/tls/certs/ca-bundle.crt || true
-              
               # Run the daemon with specific arguments
+
+              echo "[postStart Hook] 1. Downloading EGI repo file..."
+              curl -o /etc/yum.repos.d/egi-trustanchors.repo https://repository.egi.eu/sw/production/cas/1/current/repo-files/egi-trustanchors.repo
+              
+              echo "[postStart Hook] 2. Installing ca-policy-egi-core..."
+              dnf install -y ca-policy-egi-core
+              
+              echo "[postStart Hook] 3. Installing gfal2-plugin-xrootd..."
+              dnf install -y gfal2-plugin-xrootd
+
+              echo "[postStart Hook] 4. Clean up dnf..."
+              dnf clean all
+
               {{ $daemon.args }}
           
           volumeMounts:
