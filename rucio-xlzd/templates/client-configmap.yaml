@@ -67,7 +67,7 @@ data:
       --port 1094 \
       --prefix "/" \
       --impl "rucio.rse.protocols.gfal.Default" \
-      --domain-json '{"wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1}, "lan": {"read": 1, "write": 1, "delete": 1}}'
+      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
 
     echo "Setting RSE attributes for OIDC authentication..."
     rucio rse attribute delete "$RSE_NAME" auth_token || true
