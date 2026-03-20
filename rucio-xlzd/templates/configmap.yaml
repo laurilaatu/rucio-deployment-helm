@@ -43,14 +43,14 @@ data:
     expected_scope = openid profile
 
     [conveyor]
-    transfertool = fts3    
+    transfertool = fts3
     fts_servers = {{ .Values.rucio.server.fts_host }}
     allow_user_oidc_tokens = True
     scheme = davs,https
-    webdav_transfer_mode = True    
+    webdav_transfer_mode = True
     
     # We use local storage as the audience
-    request_oidc_audience = https://wlcg.cern.ch/jwt/v1/any    
+    request_oidc_audience = https://wlcg.cern.ch/jwt/v1/any
     request_oidc_scope = fts:submit-transfer fts openid profile offline_access
 
     poller_oidc_support = True
