@@ -1,11 +1,11 @@
 {{- $daemons := list 
-  (dict "key" "oauthManager" "name" "oauth-manager" "args" "rucio-oauth-manager --threads 1 --sleep-time 10")
-  (dict "key" "conveyorTransferSubmitter" "name" "conveyor-submitter" "args" "rucio-conveyor-submitter --total-threads 1 --sleep-time 10")
-  (dict "key" "conveyorPoller" "name" "conveyor-poller" "args" "rucio-conveyor-poller --total-threads 1 --sleep-time 10")
-  (dict "key" "conveyorFinisher" "name" "conveyor-finisher" "args" "rucio-conveyor-finisher --total-threads 1 --sleep-time 10")
-  (dict "key" "judgeEvaluator" "name" "judge-evaluator" "args" "rucio-judge-evaluator --threads 1 --sleep-time 10")
-  (dict "key" "transmogrifier" "name" "transmogrifier" "args" "rucio-transmogrifier --threads 1 --sleep-time 10")
-  (dict "key" "reaper" "name" "reaper" "args" "rucio-reaper --threads 1 --sleep-time 10")
+  (dict "key" "oauthManager" "name" "oauth-manager" "args" "rucio-oauth-manager --threads 1 --sleep-time 600")
+  (dict "key" "conveyorTransferSubmitter" "name" "conveyor-submitter" "args" "rucio-conveyor-submitter --total-threads 1 --sleep-time 600")
+  (dict "key" "conveyorPoller" "name" "conveyor-poller" "args" "rucio-conveyor-poller --total-threads 1 --sleep-time 600")
+  (dict "key" "conveyorFinisher" "name" "conveyor-finisher" "args" "rucio-conveyor-finisher --total-threads 1 --sleep-time 600")
+  (dict "key" "judgeEvaluator" "name" "judge-evaluator" "args" "rucio-judge-evaluator --threads 1 --sleep-time 600")
+  (dict "key" "transmogrifier" "name" "transmogrifier" "args" "rucio-transmogrifier --threads 1 --sleep-time 600")
+  (dict "key" "reaper" "name" "reaper" "args" "rucio-reaper --threads 1 --sleep-time 600")
 -}}
 
 {{- range $daemon := $daemons }}
