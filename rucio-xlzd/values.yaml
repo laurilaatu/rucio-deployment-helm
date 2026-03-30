@@ -24,10 +24,8 @@ rucio:
     fts_host: "https://fts00.grid.hep.ph.ic.ac.uk:8446"
     root_identity_dn: "CN=rucio-test-user,OU=Users,O=MyOrg,L=London,ST=London,C=GB"
 
-    # This variable is still useful for other tools.
     ca_path: "/etc/grid-security/certificates"
 
-    # Define the volumes needed: one for server certs, one for CA certs.
     extraVolumes:
       - name: server-certs-volume
         secret:
@@ -38,22 +36,17 @@ rucio:
       - name: oidc-secret-volume
         secret:
           secretName: rucio-oidc-secret
-          # Set permissions to be readable by the 'apache' user
           defaultMode: 0444
 
-    # This section now uses subPath to mount individual files exactly where Apache needs them.
     extraVolumeMounts:
-      # Mounts hostcert.pem from the server secret.
       - name: server-certs-volume
         mountPath: /etc/grid-security/hostcert.pem
         subPath: hostcert.pem
         readOnly: true
-      # Mounts hostkey.pem from the server secret.
       - name: server-certs-volume
         mountPath: /etc/grid-security/hostkey.pem
         subPath: hostkey.pem
         readOnly: true
-      # Mounts ca.pem from the CA secret.
       - name: ca-certs-volume
         mountPath: /etc/grid-security/ca.pem
         readOnly: true
@@ -61,13 +54,10 @@ rucio:
       - name: ca-certs-volume
         mountPath: /etc/grid-security/certificates
         readOnly: true
-        #subPath: ca.pem
-      # UPDATED: Mount idpsecrets.json specifically
       - name: oidc-secret-volume
         mountPath: /opt/rucio/etc/idpsecrets.json
         subPath: idpsecrets.json
         readOnly: true
-        
 
     service:
       type: NodePort
@@ -128,7 +118,6 @@ client:
     - name: oidc-secret-volume
       secret:
         secretName: rucio-oidc-secret
-        # Set permissions to be readable by the 'apache' user
         defaultMode: 0444        
 
   extraVolumeMounts:
@@ -139,7 +128,6 @@ client:
       mountPath: /etc/grid-security/ca.pem
       subPath: ca.pem
       readOnly: true
-    # UPDATED: Mount idpsecrets.json specifically
     - name: oidc-secret-volume
       mountPath: /opt/rucio/etc/idpsecrets.json
       subPath: idpsecrets.json
@@ -155,11 +143,9 @@ client:
 
   command: ["tail", "-f", "/dev/null"]
 
-
 initJob:
   enabled: true
   image: "rucio/rucio-init:release-38.3.0"
-
   
 # Database Configuration (PostgreSQL)
 postgresql:
@@ -175,22 +161,19 @@ postgresql:
   persistence:
     enabled: false
 
-
 # X.509 Authentication for User Access
 security:
   x509:
     enabled: true
     ca_cert_path: "/etc/grid-security/certificates" 
 
-# UPDATED: OIDC Configuration
+# OIDC Configuration
 oidcCredentials:
-  # This key maps to 'admin_issuer' in rucio.cfg
   adminIssuer: "xlzd"
   issuerUrl: "https://xlzd-iam.boulby.ac.uk/"
-  clientId: "" # Set this or use --set oidcCredentials.clientId=...
-  clientSecret: "" # Set this or use --set oidcCredentials.clientSecret=...
+  clientId: "" 
+  clientSecret: "" 
   oidcAudience: "https://xlzd-data.boulby.ac.uk/"
-  # Redirect URI must match your service DNS
   redirectUri: "https://rucio-service/auth/oidc_token"
 
 # Rucio Daemons
@@ -198,7 +181,6 @@ daemons:
   enabled: true
   image: "rucio/rucio-daemons:release-38.3.0"
 
-  # CRITICAL: Added oauthManager to handle tokens
   oauthManagerCount: 1
   conveyorTransferSubmitterCount: 1
   conveyorPollerCount: 1
@@ -218,7 +200,7 @@ daemons:
         cpu: "3000m"
       requests:
         memory: "200Mi"
-        cpu: "700m"
+        cpu: "1000m"
 
   conveyorPoller:
     activities: "'User Subscriptions'"
@@ -230,7 +212,7 @@ daemons:
         cpu: "3000m"
       requests:
         memory: "200Mi"
-        cpu: "700m"
+        cpu: "1000m"
 
   conveyorFinisher:
     activities: "'User Subscriptions'"
@@ -241,7 +223,16 @@ daemons:
         cpu: "3000m"
       requests:
         memory: "200Mi"
-        cpu: "700m"
+        cpu: "1000m"
+
+  conveyorReceiver:
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "3000m"
+      requests:
+        memory: "200Mi"
+        cpu: "1000m"
 
   judgeEvaluator:
     resources:
@@ -250,4 +241,31 @@ daemons:
         cpu: "3000m"
       requests:
         memory: "1Gi"
-        cpu: "700m"
+        cpu: "1000m"
+
+  transmogrifier:
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "3000m"
+      requests:
+        memory: "1Gi"
+        cpu: "1000m"
+
+  reaper:
+    resources:
+      limits:
+        memory: "4Gi"
+        cpu: "3000m"
+      requests:
+        memory: "500Mi"
+        cpu: "1000m"
+
+  oauthManager:
+    resources:
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+      requests:
+        memory: "200Mi"
+        cpu: "1000m"
