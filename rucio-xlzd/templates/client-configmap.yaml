@@ -63,7 +63,7 @@ data:
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol delete "$RSE_BOULBY" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
+    rucio-admin rse delete-protocol "$RSE_BOULBY" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
 
     echo "Setting RSE protocol using xrootd.Default implementation..."
     rucio rse protocol add "$RSE_BOULBY" --host "xlzd-data.boulby.ac.uk" --scheme davs \
@@ -73,7 +73,7 @@ data:
       --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
 
     echo "Setting RSE attributes for OIDC authentication..."
-    rucio rse attribute delete "$RSE_BOULBY" auth_token || true
+    rucio-admin rse delete-attribute "$RSE_BOULBY" --key auth_token || true
     rucio rse attribute add "$RSE_BOULBY" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_BOULBY" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_BOULBY" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
@@ -101,7 +101,7 @@ data:
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol delete "$RSE_IC" --scheme davs --hostname "gfe02.grid.hep.ph.ic.ac.uk" --port 2880 || true
+    rucio-admin rse delete-protocol "$RSE_IC" --scheme davs --hostname "gfe02.grid.hep.ph.ic.ac.uk" --port 2880 || true
 
     echo "Setting RSE protocol for $RSE_IC..."
     rucio rse protocol add "$RSE_IC" \
@@ -113,7 +113,7 @@ data:
       --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
 
     echo "Setting RSE attributes for OIDC authentication on $RSE_IC..."
-    rucio rse attribute delete "$RSE_IC" auth_token || true
+    rucio-admin rse delete-attribute "$RSE_IC" --key auth_token || true
     rucio rse attribute add "$RSE_IC" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_IC" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_IC" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
@@ -145,7 +145,7 @@ data:
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol delete "$RSE_RAL" --scheme davs --hostname "mover.pp.rl.ac.uk" --port 2880 || true
+    rucio-admin rse delete-protocol "$RSE_RAL" --scheme davs --hostname "mover.pp.rl.ac.uk" --port 2880 || true
 
     echo "Setting RSE protocol for $RSE_RAL..."
     rucio rse protocol add "$RSE_RAL" \
@@ -157,7 +157,7 @@ data:
       --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
 
     echo "Setting RSE attributes for OIDC authentication on $RSE_RAL..."
-    rucio rse attribute delete "$RSE_RAL" auth_token || true
+    rucio-admin rse delete-attribute "$RSE_RAL" --key auth_token || true
     rucio rse attribute add "$RSE_RAL" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_RAL" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_RAL" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
