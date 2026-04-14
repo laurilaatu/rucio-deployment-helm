@@ -63,17 +63,17 @@ data:
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol remove "$RSE_BOULBY" --scheme root --host "xlzd-data.boulby.ac.uk" --port 1094 || true
+    rucio rse protocol remove "$RSE_BOULBY" --scheme root || true
 
     echo "Setting RSE protocol using xrootd.Default implementation..."
     rucio rse protocol add "$RSE_BOULBY" --host "xlzd-data.boulby.ac.uk" --scheme davs \
       --port 1094 \
       --prefix "/" \
       --impl "rucio.rse.protocols.gfal.Default" \
-      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
+      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}' || echo "✅ Protocol already exists"
 
     echo "Setting RSE attributes for OIDC authentication..."
-    rucio rse attribute remove "$RSE_BOULBY" auth_token || true
+    rucio rse attribute remove "$RSE_BOULBY" --attribute auth_token || true
     rucio rse attribute add "$RSE_BOULBY" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_BOULBY" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_BOULBY" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
@@ -101,7 +101,7 @@ data:
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol remove "$RSE_IC" --scheme davs --host "gfe02.grid.hep.ph.ic.ac.uk" --port 2880 || true
+    rucio rse protocol remove "$RSE_IC" --scheme davs || true
 
     echo "Setting RSE protocol for $RSE_IC..."
     rucio rse protocol add "$RSE_IC" \
@@ -110,10 +110,10 @@ data:
       --port 2880 \
       --prefix "/pnfs/hep.ph.ic.ac.uk/data/xlzd/rstealth/" \
       --impl "rucio.rse.protocols.gfal.Default" \
-      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
+      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}' || echo "✅ Protocol already exists"
 
     echo "Setting RSE attributes for OIDC authentication on $RSE_IC..."
-    rucio rse attribute remove "$RSE_IC" auth_token || true
+    rucio rse attribute remove "$RSE_IC" --attribute auth_token || true
     rucio rse attribute add "$RSE_IC" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_IC" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_IC" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
@@ -145,7 +145,7 @@ data:
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol remove "$RSE_RAL" --scheme davs --host "mover.pp.rl.ac.uk" --port 2880 || true
+    rucio rse protocol remove "$RSE_RAL" --scheme davs || true
 
     echo "Setting RSE protocol for $RSE_RAL..."
     rucio rse protocol add "$RSE_RAL" \
@@ -154,10 +154,10 @@ data:
       --port 2880 \
       --prefix "/pnfs/pp.rl.ac.uk/data/gridpp/xlzd/" \
       --impl "rucio.rse.protocols.gfal.Default" \
-      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
+      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}' || echo "✅ Protocol already exists"
 
     echo "Setting RSE attributes for OIDC authentication on $RSE_RAL..."
-    rucio rse attribute remove "$RSE_RAL" auth_token || true
+    rucio rse attribute remove "$RSE_RAL" --attribute auth_token || true
     rucio rse attribute add "$RSE_RAL" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
     rucio rse attribute add "$RSE_RAL" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
     rucio rse attribute add "$RSE_RAL" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
