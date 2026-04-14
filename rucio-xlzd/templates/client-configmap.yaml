@@ -192,8 +192,8 @@ data:
     rucio subscription add "Auto-Replicate-XLZD" \
       --account "root" \
       --filter '{"scope": ["test"]}' \
-      --rule '[{"copies": 1, "rse_expression": "'$RSE_IC'", "activity": "User Subscriptions"}]' \
-      --comment "Automated replication to Imperial" || \
+      --rule '[{"copies": 1, "rse_expression": "'$RSE_IC'", "activity": "User Subscriptions"}, {"copies": 1, "rse_expression": "'$RSE_RAL'", "activity": "User Subscriptions"}]' \
+      --comment "Automated replication to Imperial and RAL" || \
       echo "✅ Subscription 'Auto-Replicate-XLZD' already exists (or failed to create)."
 
     echo "✅ RSE Registration & Replication Script: Finished."
