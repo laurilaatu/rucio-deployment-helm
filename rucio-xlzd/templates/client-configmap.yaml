@@ -35,10 +35,13 @@ data:
   register-rse.sh: |
     #!/bin/sh
     set -e
-    
+
+    export RUCIO_AUTH_TYPE=x509    
+
     RSE_BOULBY="BOULBY-XROOTD"
     RSE_IC="UKI-LT2-IC-HEP-DISK"
-    
+    RSE_RAL="RALPPD-RSE"
+
     echo "RSE Registration Script: Starting..."
     
     echo "Waiting for Rucio server and init-job to complete..."
@@ -133,7 +136,6 @@ data:
     # ===================================================================
     #  Configure RALPPD-RSE
     # ===================================================================
-    RSE_RAL="RALPPD-RSE"
     echo "Checking if RSE '$RSE_RAL' already exists..."
     if rucio rse attribute get "$RSE_RAL" rse_type >/dev/null 2>&1; then
       echo "✅ RSE '$RSE_RAL' already exists. Ensuring configuration..."
