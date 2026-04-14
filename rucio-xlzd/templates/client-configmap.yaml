@@ -36,8 +36,8 @@ data:
     #!/bin/sh
     set -e
     
-    RSE_NAME="BOULBY-XROOTD"
-    NEW_RSE_NAME="UKI-LT2-IC-HEP-DISK"
+    RSE_BOULBY="BOULBY-XROOTD"
+    RSE_IC="UKI-LT2-IC-HEP-DISK"
     
     echo "RSE Registration Script: Starting..."
     
@@ -51,57 +51,57 @@ data:
     # ===================================================================
     #  Configure BOULBY-XROOTD
     # ===================================================================
-    echo "Checking if RSE '$RSE_NAME' already exists..."
-    if rucio rse attribute get "$RSE_NAME" rse_type >/dev/null 2>&1; then
-      echo "✅ RSE '$RSE_NAME' already exists. Ensuring configuration..."
+    echo "Checking if RSE '$RSE_BOULBY' already exists..."
+    if rucio rse attribute get "$RSE_BOULBY" rse_type >/dev/null 2>&1; then
+      echo "✅ RSE '$RSE_BOULBY' already exists. Ensuring configuration..."
     else
-      echo "Registering new RSE: $RSE_NAME"
-      rucio rse add "$RSE_NAME"
+      echo "Registering new RSE: $RSE_BOULBY"
+      rucio rse add "$RSE_BOULBY"
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol delete "$RSE_NAME" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
+    rucio rse protocol delete "$RSE_BOULBY" --scheme root --hostname "xlzd-data.boulby.ac.uk" --port 1094 || true
 
     echo "Setting RSE protocol using xrootd.Default implementation..."
-    rucio rse protocol add "$RSE_NAME" --host "xlzd-data.boulby.ac.uk" --scheme davs \
+    rucio rse protocol add "$RSE_BOULBY" --host "xlzd-data.boulby.ac.uk" --scheme davs \
       --port 1094 \
       --prefix "/" \
       --impl "rucio.rse.protocols.gfal.Default" \
       --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
 
     echo "Setting RSE attributes for OIDC authentication..."
-    rucio rse attribute delete "$RSE_NAME" auth_token || true
-    rucio rse attribute add "$RSE_NAME" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
-    rucio rse attribute add "$RSE_NAME" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
-    rucio rse attribute add "$RSE_NAME" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
-    rucio rse attribute add "$RSE_NAME" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
-    rucio rse attribute add "$RSE_NAME" --key "oidc_support" --value True
+    rucio rse attribute delete "$RSE_BOULBY" auth_token || true
+    rucio rse attribute add "$RSE_BOULBY" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
+    rucio rse attribute add "$RSE_BOULBY" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
+    rucio rse attribute add "$RSE_BOULBY" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
+    rucio rse attribute add "$RSE_BOULBY" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
+    rucio rse attribute add "$RSE_BOULBY" --key "oidc_support" --value True
 
-    rucio rse attribute add "$RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
-    rucio rse attribute add "$RSE_NAME" --key "fts" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
-    rucio rse attribute add "$RSE_NAME" --key "fts3" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
+    rucio rse attribute add "$RSE_BOULBY" --key "lfn2pfn_algorithm" --value "hash"
+    rucio rse attribute add "$RSE_BOULBY" --key "fts" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
+    rucio rse attribute add "$RSE_BOULBY" --key "fts3" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
     
     echo "Setting RSE limits..."
-    rucio account limit add root --rse "$RSE_NAME" --bytes 1000000000000 # 1TB
+    rucio account limit add root --rse "$RSE_BOULBY" --bytes 1000000000000 # 1TB
 
-    echo "✅ Successfully configured RSE '$RSE_NAME'."
+    echo "✅ Successfully configured RSE '$RSE_BOULBY'."
 
     # ===================================================================
     #  Configure UKI-LT2-IC-HEP-DISK
     # ===================================================================
-    echo "Checking if RSE '$NEW_RSE_NAME' already exists..."
-    if rucio rse attribute get "$NEW_RSE_NAME" rse_type >/dev/null 2>&1; then
-      echo "✅ RSE '$NEW_RSE_NAME' already exists. Ensuring configuration..."
+    echo "Checking if RSE '$RSE_IC' already exists..."
+    if rucio rse attribute get "$RSE_IC" rse_type >/dev/null 2>&1; then
+      echo "✅ RSE '$RSE_IC' already exists. Ensuring configuration..."
     else
-      echo "Registering new RSE: $NEW_RSE_NAME"
-      rucio rse add "$NEW_RSE_NAME"
+      echo "Registering new RSE: $RSE_IC"
+      rucio rse add "$RSE_IC"
     fi
 
     echo "Attempting to delete old protocol (if exists)..."
-    rucio rse protocol delete "$NEW_RSE_NAME" --scheme davs --hostname "gfe02.grid.hep.ph.ic.ac.uk" --port 2880 || true
+    rucio rse protocol delete "$RSE_IC" --scheme davs --hostname "gfe02.grid.hep.ph.ic.ac.uk" --port 2880 || true
 
-    echo "Setting RSE protocol for $NEW_RSE_NAME..."
-    rucio rse protocol add "$NEW_RSE_NAME" \
+    echo "Setting RSE protocol for $RSE_IC..."
+    rucio rse protocol add "$RSE_IC" \
       --host "gfe02.grid.hep.ph.ic.ac.uk" \
       --scheme "davs" \
       --port 2880 \
@@ -109,33 +109,81 @@ data:
       --impl "rucio.rse.protocols.gfal.Default" \
       --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
 
-    echo "Setting RSE attributes for OIDC authentication on $NEW_RSE_NAME..."
-    rucio rse attribute delete "$NEW_RSE_NAME" auth_token || true
-    rucio rse attribute add "$NEW_RSE_NAME" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
-    rucio rse attribute add "$NEW_RSE_NAME" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
-    rucio rse attribute add "$NEW_RSE_NAME" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
-    rucio rse attribute add "$NEW_RSE_NAME" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
+    echo "Setting RSE attributes for OIDC authentication on $RSE_IC..."
+    rucio rse attribute delete "$RSE_IC" auth_token || true
+    rucio rse attribute add "$RSE_IC" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
+    rucio rse attribute add "$RSE_IC" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
+    rucio rse attribute add "$RSE_IC" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
+    rucio rse attribute add "$RSE_IC" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
     
-    rucio rse attribute add "$NEW_RSE_NAME" --key "oidc_support" --value True
-    rucio rse attribute add "$NEW_RSE_NAME" --key "oidc_base_path" --value "/pnfs/hep.ph.ic.ac.uk/data/xlzd"
+    rucio rse attribute add "$RSE_IC" --key "oidc_support" --value True
+    rucio rse attribute add "$RSE_IC" --key "oidc_base_path" --value "/pnfs/hep.ph.ic.ac.uk/data/xlzd"
 
-    rucio rse attribute add "$NEW_RSE_NAME" --key "lfn2pfn_algorithm" --value "hash"
+    rucio rse attribute add "$RSE_IC" --key "lfn2pfn_algorithm" --value "hash"
 
-    rucio rse attribute add "$NEW_RSE_NAME" --key "fts" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
-    rucio rse attribute add "$NEW_RSE_NAME" --key "fts3" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"    
+    rucio rse attribute add "$RSE_IC" --key "fts" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
+    rucio rse attribute add "$RSE_IC" --key "fts3" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"    
 
-    echo "Setting RSE limits for $NEW_RSE_NAME..."
-    rucio account limit add root --rse "$NEW_RSE_NAME" --bytes 1000000000000 # 1TB
+    echo "Setting RSE limits for $RSE_IC..."
+    rucio account limit add root --rse "$RSE_IC" --bytes 1000000000000 # 1TB
 
-    echo "✅ Successfully configured RSE '$NEW_RSE_NAME' with OIDC."
+    echo "✅ Successfully configured RSE '$RSE_IC' with OIDC."
+
+
+    # ===================================================================
+    #  Configure RALPPD-RSE
+    # ===================================================================
+    RSE_RAL="RALPPD-RSE"
+    echo "Checking if RSE '$RSE_RAL' already exists..."
+    if rucio rse attribute get "$RSE_RAL" rse_type >/dev/null 2>&1; then
+      echo "✅ RSE '$RSE_RAL' already exists. Ensuring configuration..."
+    else
+      echo "Registering new RSE: $RSE_RAL"
+      rucio rse add "$RSE_RAL"
+    fi
+
+    echo "Attempting to delete old protocol (if exists)..."
+    rucio rse protocol delete "$RSE_RAL" --scheme davs --hostname "mover.pp.rl.ac.uk" --port 2880 || true
+
+    echo "Setting RSE protocol for $RSE_RAL..."
+    rucio rse protocol add "$RSE_RAL" \
+      --host "mover.pp.rl.ac.uk" \
+      --scheme "davs" \
+      --port 2880 \
+      --prefix "/pnfs/pp.rl.ac.uk/data/gridpp/xlzd/" \
+      --impl "rucio.rse.protocols.gfal.Default" \
+      --domain-json '{"lan": {"read": 1, "write": 1, "delete": 1}, "wan": {"read": 1, "write": 1, "delete": 1, "third_party_copy_read": 1, "third_party_copy_write": 1}}'
+
+    echo "Setting RSE attributes for OIDC authentication on $RSE_RAL..."
+    rucio rse attribute delete "$RSE_RAL" auth_token || true
+    rucio rse attribute add "$RSE_RAL" --key "oidc_issuer" --value "https://xlzd-iam.boulby.ac.uk"
+    rucio rse attribute add "$RSE_RAL" --key "oidc_client_id_path" --value "/opt/rucio/etc/oidc/oidc_client_id"
+    rucio rse attribute add "$RSE_RAL" --key "oidc_client_secret_path" --value "/opt/rucio/etc/oidc/oidc_client_secret"
+    rucio rse attribute add "$RSE_RAL" --key "oidc_scope" --value "storage.read:/ storage.create:/ storage.modify:/ openid profile offline_access"
+    
+    rucio rse attribute add "$RSE_RAL" --key "oidc_support" --value True
+    rucio rse attribute add "$RSE_RAL" --key "oidc_base_path" --value "/pnfs/pp.rl.ac.uk/data/gridpp/xlzd"
+
+    rucio rse attribute add "$RSE_RAL" --key "lfn2pfn_algorithm" --value "hash"
+
+    rucio rse attribute add "$RSE_RAL" --key "fts" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"
+    rucio rse attribute add "$RSE_RAL" --key "fts3" --value "https://fts00.grid.hep.ph.ic.ac.uk:8446"    
+
+    echo "Setting RSE limits for $RSE_RAL..."
+    rucio account limit add root --rse "$RSE_RAL" --bytes 1000000000000 # 1TB
+
+    echo "✅ Successfully configured RSE '$RSE_RAL' with OIDC."    
 
     # ===================================================================
     #  Set Distances
     # ===================================================================
     echo "Setting distances..."
-    rucio-admin rse add-distance --distance 3 "$NEW_RSE_NAME" "$RSE_NAME"
-    rucio-admin rse add-distance --distance 3 "$RSE_NAME" "$NEW_RSE_NAME"
-
+    rucio-admin rse add-distance --distance 3 "$RSE_IC" "$RSE_BOULBY"
+    rucio-admin rse add-distance --distance 3 "$RSE_BOULBY" "$RSE_IC"
+    rucio-admin rse add-distance --distance 3 "$RSE_BOULBY" "$RSE_RAL"
+    rucio-admin rse add-distance --distance 3 "$RSE_RAL" "$RSE_BOULBY"
+    rucio-admin rse add-distance --distance 3 "$RSE_IC" "$RSE_RAL"
+    rucio-admin rse add-distance --distance 3 "$RSE_RAL" "$RSE_IC"    
     # ===================================================================
     #  Setup Replication Rules (Subscriptions)
     # ===================================================================
@@ -144,7 +192,7 @@ data:
     rucio subscription add "Auto-Replicate-XLZD" \
       --account "root" \
       --filter '{"scope": ["test"]}' \
-      --rule '[{"copies": 1, "rse_expression": "'$NEW_RSE_NAME'", "activity": "User Subscriptions"}]' \
+      --rule '[{"copies": 1, "rse_expression": "'$RSE_IC'", "activity": "User Subscriptions"}]' \
       --comment "Automated replication to Imperial" || \
       echo "✅ Subscription 'Auto-Replicate-XLZD' already exists (or failed to create)."
 
