@@ -2,7 +2,7 @@ rucio:
   server:
     enabled: true
     replicas: 1
-    image: "rucio/rucio-server:release-38.3.0"
+    image: "rucio/rucio-server:release-38.5.5
     loglevel: "DEBUG"
     db_host: "rucio-release-postgresql"
     db_user: "rucio"
@@ -96,7 +96,7 @@ client:
   replicas: 1
   image:
     repository: "rucio/rucio-clients"
-    tag: "release-38.3.0"
+    tag: "release-38.5.5
     pullPolicy: Always
   config:
     auth_type: "oidc" 
@@ -145,7 +145,7 @@ client:
 
 initJob:
   enabled: true
-  image: "rucio/rucio-init:release-38.3.0"
+  image: "rucio/rucio-init:release-38.5.5
   
 # Database Configuration (PostgreSQL)
 postgresql:
@@ -179,7 +179,7 @@ oidcCredentials:
 # Rucio Daemons
 daemons: 
   enabled: true
-  image: "rucio/rucio-daemons:release-38.3.0"
+  image: "rucio/rucio-daemons:release-38.5.5
 
   oauthManagerCount: 1
   conveyorTransferSubmitterCount: 1
